@@ -31,12 +31,12 @@ Aplicação mobile inspirada em ferramentas de flashcards, mas com múltiplos fo
 Desenvolver uma plataforma dinâmica para auxiliar estudantes no processo de memorização e revisão de conteúdos para provas, vestibulares e concursos públicos.
 
 ### **Público-Alvo**
-* **Concurseiros:** Revisão de legislações e editais.
-* **Estudantes Universitários:** Memorização de conceitos técnicos e acadêmicos.
-* **Estudantes de Ensino Médio:** Preparação focada em vestibulares e ENEM.
+* **Concurseiros:**
+* **Estudantes Universitários:**
+* **Estudantes de Ensino Médio e ENEM:** 
 
 ### **Impacto Esperado**
-Democratizar o acesso a técnicas de **estudo ativo** e **repetição espaçada**. Através da diversificação de exercícios, espera-se uma melhora significativa na retenção de conteúdo e no desempenho acadêmico dos usuários.
+Através da diversificação de exercícios, espera-se uma melhora significativa na retenção de conteúdo e no desempenho acadêmico dos usuários.
 
 ---
 
