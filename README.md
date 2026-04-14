@@ -58,11 +58,4 @@ A plataforma oferece uma vasta gama de ferramentas para diferentes estilos de ap
 * Acompanhamento detalhado de **progresso e desempenho**.
 
 ---
-
-## 🛠️ Tecnologias (Sugestão de Preenchimento)
-* **Mobile:** [Ex: React Native / Flutter]
-* **Backend:** [Ex: Node.js / Python]
-* **Banco de Dados:** [Ex: PostgreSQL / Firebase]
-
----
 > Projeto desenvolvido para fins acadêmicos - Universidade Federal do Ceará (UFC) - Campus Quixadá.
