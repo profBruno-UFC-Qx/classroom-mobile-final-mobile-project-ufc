@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MemonowTheme {
                 App()
+
             }
         }
     }
@@ -35,5 +36,8 @@ fun App() {
         CadernosTelas(modifier = Modifier.padding(padding))
         //CadernosTelas2(modifier = Modifier.padding(padding))
         //LoginTela(modifier = Modifier.padding(padding))
-    }
+        //RegistrarTela(modifier = Modifier.padding(padding))
+
+fn AppPreview(){
+    App()
 }
