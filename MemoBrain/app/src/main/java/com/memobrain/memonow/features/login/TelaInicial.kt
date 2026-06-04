@@ -31,7 +31,10 @@ import androidx.compose.ui.unit.sp
 import com.memobrain.memonow.R
 
 @Composable
-fun TelaInicial() {
+fun TelaInicial(
+    entrar: () -> Unit = {},
+    registrar: () -> Unit = {}
+) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFFE8EAEC)
@@ -69,7 +72,7 @@ fun TelaInicial() {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = { },
+                        onClick = entrar,
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF2B5F87)
@@ -86,7 +89,7 @@ fun TelaInicial() {
                     Spacer(modifier = Modifier.width(16.dp))
 
                     OutlinedButton(
-                        onClick = { },
+                        onClick = registrar,
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             containerColor = Color.White,
