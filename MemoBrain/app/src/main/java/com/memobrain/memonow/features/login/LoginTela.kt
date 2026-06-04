@@ -36,7 +36,9 @@ import androidx.compose.ui.unit.sp
 import com.memobrain.memonow.R
 
 @Composable
-fun LoginTela() {
+fun LoginTela(
+    registrar: () -> Unit = {}
+) {
 
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
@@ -220,7 +222,7 @@ fun LoginTela() {
                     text = "Registrar aqui",
                     color = Color(0xFF2A5A82),
                     fontSize = 13.sp,
-                    modifier = Modifier.clickable { }
+                    modifier = Modifier.clickable {registrar()}
                 )
             }
         }
