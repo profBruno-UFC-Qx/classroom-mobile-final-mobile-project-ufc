@@ -27,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -38,7 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.memobrain.memonow.R
+import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginTela(
@@ -48,8 +52,14 @@ fun LoginTela(
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var mensagemLogin by remember { mutableStateOf("") }
+    var erroEmail by remember { mutableStateOf<String?>(null) }
+    var erroSenha by remember { mutableStateOf<String?>(null) }
 
     val servicoLogin = remember { ServicoLoginFirebase() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val armazenamentoSessao = remember { ArmazenamentoSessao(context) }
+    var carregando by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -84,7 +94,10 @@ fun LoginTela(
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    erroEmail = null
+                },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
@@ -95,12 +108,22 @@ fun LoginTela(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
+                isError = erroEmail != null,
+                supportingText = {
+                    erroEmail?.let {
+                        Text(
+                            text = it,
+                            color = Color(0xFFD32F2F),
+                            fontSize = 12.sp,
+                        )
+                    }
+                },
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = if (erroEmail != null) Color(0xFFD32F2F) else Color.Transparent,
+                        unfocusedBorderColor = if (erroEmail != null) Color(0xFFD32F2F) else Color.Transparent,
                         cursorColor = Color(0xFF2C2F36),
                     ),
             )
@@ -109,7 +132,10 @@ fun LoginTela(
 
             OutlinedTextField(
                 value = senha,
-                onValueChange = { senha = it },
+                onValueChange = {
+                    senha = it
+                    erroSenha = null
+                },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
@@ -120,13 +146,23 @@ fun LoginTela(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
+                isError = erroSenha != null,
+                supportingText = {
+                    erroSenha?.let {
+                        Text(
+                            text = it,
+                            color = Color(0xFFD32F2F),
+                            fontSize = 12.sp,
+                        )
+                    }
+                },
                 visualTransformation = PasswordVisualTransformation(),
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = if (erroSenha != null) Color(0xFFD32F2F) else Color.Transparent,
+                        unfocusedBorderColor = if (erroSenha != null) Color(0xFFD32F2F) else Color.Transparent,
                         cursorColor = Color(0xFF2C2F36),
                     ),
             )
@@ -145,27 +181,56 @@ fun LoginTela(
 
             Button(
                 onClick = {
+                    erroEmail = null
+                    erroSenha = null
+                    mensagemLogin = ""
+
+                    if (email.isBlank()) {
+                        erroEmail = "Digite seu email"
+                        return@Button
+                    }
+
+                    if (senha.isBlank()) {
+                        erroSenha = "Digite sua senha"
+                        return@Button
+                    }
+
+                    carregando = true
+
                     servicoLogin.loginUsuario(
                         email = email,
                         senha = senha,
                         aoSucesso = { resultado ->
-                            mensagemLogin = "Login realizado com sucesso: ${resultado.email}"
-                            onLoginSucesso()
+                            scope.launch {
+                                armazenamentoSessao.salvarSessao(
+                                    uid = resultado.uid,
+                                    email = resultado.email,
+                                )
+                                carregando = false
+                                mensagemLogin = "Login realizado com sucesso ${resultado.email}"
+                                onLoginSucesso()
+                            }
                         },
                         aoErro = { erro ->
-                            mensagemLogin = erro
+                            erroEmail = "E-mail ou senha inválidos"
+                            erroSenha = "E-mail ou senha inválidos"
+                            carregando = false
                         },
                     )
                 },
+                enabled = !carregando,
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF234E70),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color(0xFF3A6F98),
+                        disabledContentColor = Color.White,
+                    ),
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                 shape = RoundedCornerShape(10.dp),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2B5F87),
-                    ),
             ) {
                 Text(
                     text = "Entrar",
