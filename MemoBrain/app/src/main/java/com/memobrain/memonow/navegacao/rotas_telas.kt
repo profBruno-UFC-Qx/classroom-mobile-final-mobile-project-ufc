@@ -1,7 +1,8 @@
 package com.memobrain.memonow.navegacao
 
-enum class RotasTelas{
+enum class RotasTelas {
     INICIAL,
     LOGIN,
-    REGISTRAR
+    REGISTRAR,
+    CADERNOS,
 }
