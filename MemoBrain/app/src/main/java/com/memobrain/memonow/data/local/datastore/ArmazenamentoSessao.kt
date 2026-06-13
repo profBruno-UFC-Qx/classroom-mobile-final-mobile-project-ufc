@@ -1,7 +1,6 @@
 package com.memobrain.memonow.data.local.datastore
 
 import android.content.Context
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -43,6 +42,12 @@ class ArmazenamentoSessao(
         context.dataStore.edit { preferencias ->
             preferencias[CHAVE_UID] = uid
             preferencias[CHAVE_EMAIL] = email
+        }
+    }
+
+    suspend fun limparSessao() {
+        context.dataStore.edit { preferencias ->
+            preferencias.clear()
         }
     }
 }
