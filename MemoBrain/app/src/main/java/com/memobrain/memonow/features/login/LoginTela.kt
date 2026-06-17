@@ -92,6 +92,15 @@ fun LoginTela(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            Text(
+                text = "E-mail",
+                fontSize = 15.sp,
+                color = Color(0xFF475569),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 6.dp),
+            )
             OutlinedTextField(
                 value = email,
                 onValueChange = {
@@ -129,7 +138,15 @@ fun LoginTela(
             )
 
             Spacer(modifier = Modifier.height(14.dp))
-
+            Text(
+                text = "Senha",
+                fontSize = 15.sp,
+                color = Color(0xFF475569),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 6.dp),
+            )
             OutlinedTextField(
                 value = senha,
                 onValueChange = {
