@@ -73,7 +73,10 @@ fun AppNavegacao() {
             }
 
             RotasTelas.REGISTRAR -> {
-                RegistrarTela()
+                RegistrarTela(
+                    onCadastroSucesso = { telaAtual = RotasTelas.CADERNOS },
+                    onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
+                )
             }
 
             RotasTelas.CADERNOS -> {
