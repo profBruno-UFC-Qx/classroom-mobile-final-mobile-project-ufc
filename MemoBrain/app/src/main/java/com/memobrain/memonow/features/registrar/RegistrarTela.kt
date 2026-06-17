@@ -1,10 +1,6 @@
 package com.memobrain.memonow.features.registrar
 
-
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,290 +13,484 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.memobrain.memonow.R
+import com.memobrain.memonow.data.remote.autenticacao.ServicoCadastroFirebase
 
 @Composable
-fun RegistrarTela() {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+fun RegistrarTela(
+    onCadastroSucesso: () -> Unit = {},
+    onIrParaLogin: () -> Unit = {},
+) {
+    val servicoCadastro = remember { ServicoCadastroFirebase() }
 
-        Box(
-            modifier = Modifier
+    var email by remember { mutableStateOf("") }
+    var telefone by remember { mutableStateOf("") }
+    var senha by remember { mutableStateOf("") }
+    var senhaVisivel by remember { mutableStateOf(false) }
+    var mensagemCadastro by remember { mutableStateOf("") }
+    var carregando by remember { mutableStateOf(false) }
+
+    var erroEmail by remember { mutableStateOf<String?>(null) }
+    var erroTelefone by remember { mutableStateOf<String?>(null) }
+    var erroSenha by remember { mutableStateOf<String?>(null) }
+
+    Box(
+        modifier =
+            Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF6F8FB))
-                .padding(innerPadding)
-        ){
-            Column (modifier = Modifier
-                .padding(start = 35.dp, end = 35.dp, top = 50.dp, bottom = 40.dp)
-                .fillMaxSize()
-            ){
-                Box(modifier = Modifier.fillMaxWidth().height(100.dp)
-                ){
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row() { Text(text = "Crie sua conta", fontSize = 27.sp) }
-                        Row() { Text(text = "Crie e memorize de diversas formas!") }
-                    }
-                }
-                //Campo de Email
-                var email by remember { mutableStateOf("") }
-                Box(modifier = Modifier.padding(bottom =  5.dp).fillMaxWidth().height(70.dp)){
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(modifier = Modifier.padding(bottom = 2.dp)) {
-                            Text(text = "E-mail", fontSize = 15.sp)
-                        }
-                        Row() {
-                            BasicTextField(
-                                value = email,
-                                onValueChange = { email = it },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(42.dp)
-                                    .background(Color.White),
-                                textStyle = TextStyle(fontSize = 15.sp),
-                                decorationBox = { innerTextField ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                                            .padding(horizontal = 16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Box(modifier = Modifier.weight(1f)) {
-                                            if (email.isEmpty()) {
-                                                Text(
-                                                    text = "Digite seu e-mail",
-                                                    color = Color.Gray,
-                                                    fontSize = 16.sp
-                                                )
-                                            }
-                                            innerTextField()
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
-                //Número de Telefone
-                var telefone by remember { mutableStateOf("") }
-                Box(modifier = Modifier.padding(bottom =  5.dp).fillMaxWidth().height(70.dp)) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Número",
-                            fontSize = 15.sp,
-                            modifier = Modifier.padding(bottom = 2.dp)
-                        )
-                        BasicTextField(
-                            value = telefone,
-                            onValueChange = { novoTexto ->
-                                if (novoTexto.all { it.isDigit() }) {
-                                    telefone = novoTexto
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(42.dp)
-                                .background(Color.White),
-                            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            decorationBox = { innerTextField ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
-                                        .padding(horizontal = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "+55",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black,
-                                        modifier = Modifier.padding(end = 12.dp)
-                                    )
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(start = 18.dp, end = 18.dp, top = 52.dp, bottom = 24.dp),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
 
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxHeight(0.4f)
-                                            .width(1.dp)
-                                            .border(0.5.dp, Color(0xFFE2E8F0))
-                                    )
+            Text(
+                text = "Crie sua conta",
+                fontSize = 27.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF111827),
+            )
 
-                                    Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        if (telefone.isEmpty()) {
-                                            Text(
-                                                text = "Digite seu telefone",
-                                                color = Color(0xFFA0AEC0),
-                                                fontSize = 16.sp
-                                            )
-                                        }
-                                        innerTextField()
-                                    }
-                                }
-                            }
-                        )
-                    }
-                }
-                //Campo de Senha
-                var senha by remember { mutableStateOf("") }
-                var senhaVisivel by remember { mutableStateOf(false) }
-                Box(modifier = Modifier.padding(bottom =  5.dp).fillMaxWidth().height(70.dp)){
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Senha",
-                            fontSize = 15.sp,
-                            modifier = Modifier.padding(bottom = 2.dp)
-                        )
+            Text(
+                text = "Crie e memorize de diversas formas!",
+                fontSize = 16.sp,
+                color = Color(0xFF64748B),
+            )
 
-                        BasicTextField(
-                            value = senha,
-                            onValueChange = { senha = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(42.dp)
-                                .background(Color.White),
-                            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
+            Spacer(modifier = Modifier.height(30.dp))
 
-                            visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+            // E-mail
+            Text(
+                text = "E-mail",
+                fontSize = 15.sp,
+                color = Color(0xFF475569),
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
 
-                            decorationBox = { innerTextField ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
-                                        .padding(horizontal = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        if (senha.isEmpty()) {
-                                            Text(
-                                                text = "Digite sua senha",
-                                                color = Color(0xFFA0AEC0),
-                                                fontSize = 16.sp
-                                            )
-                                        }
-                                        innerTextField()
-                                    }
-
-                                    val icone = if (senhaVisivel) painterResource(id = R.drawable.olho_aberto) else painterResource(id = R.drawable.olho_fechado)
-                                    val descricao = if (senhaVisivel) "Esconder senha" else "Mostrar senha"
-
-                                    Icon(
-                                        painter = icone,
-                                        contentDescription = descricao,
-                                        tint = Color(0xFF1A1A1A),
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .clickable {
-                                                senhaVisivel = !senhaVisivel
-                                            }
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-                //Lembrar de Mim | Esqueci a senha
-                var lembrarMeChecked by remember { mutableStateOf(false) }
-                Box(modifier = Modifier.fillMaxWidth().height(50.dp)){
+            BasicTextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                    erroEmail = null
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .background(Color.White, RoundedCornerShape(12.dp)),
+                textStyle =
+                    TextStyle(
+                        fontSize = 15.sp,
+                        color = Color(0xFF111827),
+                    ),
+                singleLine = true,
+                decorationBox = { innerTextField ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .border(
+                                    1.dp,
+                                    if (erroEmail != null) Color(0xFFD32F2F) else Color(0xFFD1D5DB),
+                                    RoundedCornerShape(12.dp),
+                                ).padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { lembrarMeChecked = !lembrarMeChecked }
-                        ) {
-                            Checkbox(
-                                checked = lembrarMeChecked,
-                                onCheckedChange = { lembrarMeChecked = it },
-                                colors = CheckboxDefaults.colors(
-                                    checkedColor = Color(0xFF1E3A8A),
-                                    uncheckedColor = Color(0xFFCBD5E1)
-                                ),
-                                modifier = Modifier.size(24.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = "Lembrar-me",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFF475569)
-                            )
-                        }
-                        Text(
-                            text = "Esqueci a senha?",
-                            fontSize = 14.sp,
-                            color = Color(0xFF94A3B8),
-                            modifier = Modifier.clickable {
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (email.isEmpty()) {
+                                Text(
+                                    text = "Digite seu e-mail",
+                                    color = Color(0xFFA9AFB7),
+                                    fontSize = 14.sp,
+                                )
                             }
-                        )
+                            innerTextField()
+                        }
                     }
-                }
-                //Botão de Cadastrar
-                Box(modifier = Modifier.padding(top = 40.dp).fillMaxWidth().height(80.dp)){
-                    Button(
-                        onClick = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                            .height(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1B4363),
-                            contentColor = Color.White
-                        )
+                },
+            )
+
+            if (erroEmail != null) {
+                Text(
+                    text = erroEmail ?: "",
+                    color = Color(0xFFD32F2F),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Número
+            Text(
+                text = "Número",
+                fontSize = 15.sp,
+                color = Color(0xFF475569),
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
+
+            BasicTextField(
+                value = telefone,
+                onValueChange = { novoTexto ->
+                    if (novoTexto.all { it.isDigit() }) {
+                        telefone = novoTexto
+                        erroTelefone = null
+                    }
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .background(Color.White, RoundedCornerShape(12.dp)),
+                textStyle =
+                    TextStyle(
+                        fontSize = 16.sp,
+                        color = Color(0xFF111827),
+                    ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                decorationBox = { innerTextField ->
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .border(
+                                    1.dp,
+                                    if (erroTelefone != null) Color(0xFFD32F2F) else Color(0xFFD1D5DB),
+                                    RoundedCornerShape(12.dp),
+                                ).padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Criar Conta",
+                            text = "+55",
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF111827),
                         )
-                    }
-                }
-                //Google Apple Facebook
-                /*
-                Box(modifier = Modifier.fillMaxWidth().height(200.dp)){
-                }
-                */
 
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxHeight(0.45f)
+                                    .width(1.dp)
+                                    .background(Color(0xFFE5E7EB)),
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (telefone.isEmpty()) {
+                                Text(
+                                    text = "Digite seu telefone",
+                                    color = Color(0xFFA9AFB7),
+                                    fontSize = 14.sp,
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
+                },
+            )
+
+            if (erroTelefone != null) {
+                Text(
+                    text = erroTelefone ?: "",
+                    color = Color(0xFFD32F2F),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
             }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Senha
+            Text(
+                text = "Senha",
+                fontSize = 15.sp,
+                color = Color(0xFF475569),
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                BasicTextField(
+                    value = senha,
+                    onValueChange = {
+                        senha = it
+                        erroSenha = null
+                    },
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(42.dp)
+                            .background(Color.White, RoundedCornerShape(12.dp)),
+                    textStyle =
+                        TextStyle(
+                            fontSize = 16.sp,
+                            color = Color(0xFF111827),
+                        ),
+                    singleLine = true,
+                    visualTransformation =
+                        if (senhaVisivel) {
+                            VisualTransformation.None
+                        } else {
+                            PasswordVisualTransformation()
+                        },
+                    decorationBox = { innerTextField ->
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .border(
+                                        1.dp,
+                                        if (erroSenha != null) Color(0xFFD32F2F) else Color(0xFFD1D5DB),
+                                        RoundedCornerShape(12.dp),
+                                    ).padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (senha.isEmpty()) {
+                                    Text(
+                                        text = "Digite sua senha",
+                                        color = Color(0xFFA9AFB7),
+                                        fontSize = 14.sp,
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    },
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                val iconeSenha =
+                    if (senhaVisivel) {
+                        painterResource(id = R.drawable.olho_aberto)
+                    } else {
+                        painterResource(id = R.drawable.olho_fechado)
+                    }
+
+                Icon(
+                    painter = iconeSenha,
+                    contentDescription = if (senhaVisivel) "Esconder senha" else "Mostrar senha",
+                    tint = Color(0xFF111827),
+                    modifier =
+                        Modifier
+                            .size(22.dp)
+                            .clickable { senhaVisivel = !senhaVisivel },
+                )
+            }
+
+            if (erroSenha != null) {
+                Text(
+                    text = erroSenha ?: "",
+                    color = Color(0xFFD32F2F),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(26.dp))
+
+            Button(
+                onClick = {
+                    erroEmail = null
+                    erroTelefone = null
+                    erroSenha = null
+                    mensagemCadastro = ""
+
+                    if (email.isBlank()) {
+                        erroEmail = "Digite o seu e-mail"
+                        return@Button
+                    }
+
+                    if (telefone.isBlank()) {
+                        erroTelefone = "Digite seu telefone"
+                        return@Button
+                    }
+
+                    if (senha.isBlank()) {
+                        erroSenha = "Digite sua senha"
+                        return@Button
+                    }
+
+                    carregando = true
+
+                    servicoCadastro.cadastrarUsuario(
+                        email = email,
+                        telefone = telefone,
+                        senha = senha,
+                        aoSucesso = {
+                            carregando = false
+                            mensagemCadastro = "Conta criada com sucesso"
+                            onCadastroSucesso()
+                        },
+                        aoError = { erro ->
+                            carregando = false
+                            mensagemCadastro = erro
+                        },
+                    )
+                },
+                enabled = !carregando,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1B4363),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color(0xFF3A6F98),
+                        disabledContentColor = Color.White,
+                    ),
+            ) {
+                Text(
+                    text = "Criar Conta",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            if (mensagemCadastro.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = mensagemCadastro,
+                    color = Color(0xFF334155),
+                    fontSize = 13.sp,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(1.dp)
+                            .background(Color(0xFFE5E7EB)),
+                )
+
+                Text(
+                    text = "ou continue com",
+                    color = Color(0xFFB0B7C3),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                )
+
+                Box(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(1.dp)
+                            .background(Color(0xFFE5E7EB)),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                BotaoSocialCadastro(R.drawable.ic_google, "Google")
+                BotaoSocialCadastro(R.drawable.ic_apple, "Apple")
+                BotaoSocialCadastro(R.drawable.ic_facebook, "Facebook")
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Já tem uma conta? ",
+                    color = Color(0xFF9CA3AF),
+                    fontSize = 14.sp,
+                )
+
+                Text(
+                    text = "Entrar",
+                    color = Color(0xFF1B4363),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable { onIrParaLogin() },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BotaoSocialCadastro(
+    icone: Int,
+    descricao: String,
+) {
+    Surface(
+        modifier =
+            Modifier
+                .width(96.dp)
+                .height(46.dp),
+        color = Color.White,
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 6.dp,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(id = icone),
+                contentDescription = descricao,
+                modifier = Modifier.size(26.dp),
+            )
         }
     }
 }
