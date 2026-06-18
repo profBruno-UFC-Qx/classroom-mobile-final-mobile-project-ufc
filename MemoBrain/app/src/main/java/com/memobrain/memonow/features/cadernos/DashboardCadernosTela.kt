@@ -65,7 +65,10 @@ enum class AbaMenu {
 }
 
 @Composable
-fun DashboardCadernosTela(modifier: Modifier = Modifier) {
+fun DashboardCadernosTela(
+    modifier: Modifier = Modifier,
+    onIrParaCadernos: () -> Unit = {},
+) {
     val chipsFiltros = listOf("Todos", "Revisar Hoje", "Em andamento", "Concluídos")
     var chipSelecionado by remember { mutableStateOf("Todos") }
 
@@ -88,6 +91,15 @@ fun DashboardCadernosTela(modifier: Modifier = Modifier) {
         bottomBar = {
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.INICIO,
+                onAbaClick = { aba ->
+                    when (aba) {
+                        AbaMenu.CADERNOS -> {
+                            onIrParaCadernos()
+                        }
+
+                        else -> {}
+                    }
+                },
             )
         },
         containerColor = Color(0xFFF6F8FB),

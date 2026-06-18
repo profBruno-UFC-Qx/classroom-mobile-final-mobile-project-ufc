@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -36,9 +39,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,14 +58,18 @@ data class Caderno(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaCadernosTela(modifier: Modifier = Modifier) {
-    val listaCadernos = remember {
-        listOf(
-            Caderno("1", "Ciência de Dados", 6, 14),
-            Caderno("2", "Direito Constitucional", 7, 20),
-            Caderno("3", "Direito Processual Penal", 15, 48),
-        )
-    }
+fun ListaCadernosTela(
+    modifier: Modifier = Modifier,
+    onIrParaInicio: () -> Unit = {},
+) {
+    val listaCadernos =
+        remember {
+            listOf(
+                Caderno("1", "Ciência de Dados", 6, 14),
+                Caderno("2", "Direito Constitucional", 7, 20),
+                Caderno("3", "Direito Processual Penal", 15, 48),
+            )
+        }
 
     var tabSelecionada by remember { mutableIntStateOf(0) }
 
@@ -81,23 +85,31 @@ fun ListaCadernosTela(modifier: Modifier = Modifier) {
                         color = Color(0xFF1A2536),
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF6F8FB),
-                ),
+                colors =
+                    TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color(0xFFF6F8FB),
+                    ),
             )
         },
         bottomBar = {
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.CADERNOS,
+                onAbaClick = { aba ->
+                    when (aba) {
+                        AbaMenu.INICIO -> onIrParaInicio()
+                        else -> {}
+                    }
+                },
             )
         },
         containerColor = Color(0xFFF6F8FB),
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
         ) {
             TabSelector(
                 selecionado = tabSelecionada,
@@ -121,13 +133,15 @@ fun ListaCadernosTela(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = { },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .padding(bottom = 8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF22496E),
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .padding(bottom = 8.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF22496E),
+                    ),
                 shape = RoundedCornerShape(28.dp),
             ) {
                 Text(
@@ -148,11 +162,12 @@ fun TabSelector(
     onTabSelected: (Int) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(Color(0xFFF1F3F5), RoundedCornerShape(24.dp))
-            .padding(4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(Color(0xFFF1F3F5), RoundedCornerShape(24.dp))
+                .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val abas = listOf("Meus ($quantidadeMeus)", "Públicos")
@@ -162,13 +177,15 @@ fun TabSelector(
 
             Button(
                 onClick = { onTabSelected(index) },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selecionadoAgora) Color.White else Color.Transparent,
-                    contentColor = if (selecionadoAgora) Color(0xFF1A2536) else Color(0xFF6C757D),
-                ),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = if (selecionadoAgora) Color.White else Color.Transparent,
+                        contentColor = if (selecionadoAgora) Color(0xFF1A2536) else Color(0xFF6C757D),
+                    ),
                 shape = RoundedCornerShape(20.dp),
                 contentPadding = PaddingValues(0.dp),
             ) {
@@ -185,9 +202,10 @@ fun TabSelector(
 @Composable
 fun CardCaderno(caderno: Caderno) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
@@ -200,9 +218,10 @@ fun CardCaderno(caderno: Caderno) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(Color(0xFFE6F4F1), RoundedCornerShape(12.dp)),
+                    modifier =
+                        Modifier
+                            .size(48.dp)
+                            .background(Color(0xFFE6F4F1), RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Image(
@@ -263,9 +282,10 @@ fun CardCaderno(caderno: Caderno) {
 
             LinearProgressIndicator(
                 progress = { progresso },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(6.dp),
                 color = Color(0xFF4FA393),
                 trackColor = Color(0xFFE9ECEF),
                 strokeCap = StrokeCap.Round,

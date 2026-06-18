@@ -81,11 +81,15 @@ fun AppNavegacao() {
             }
 
             RotasTelas.INICIO_APP -> {
-                DashboardCadernosTela()
+                DashboardCadernosTela(
+                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
+                )
             }
 
             RotasTelas.CADERNOS -> {
-                ListaCadernosTela()
+                ListaCadernosTela(
+                    onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
+                )
             }
         }
     }
