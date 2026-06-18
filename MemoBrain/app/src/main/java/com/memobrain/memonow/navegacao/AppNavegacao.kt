@@ -14,7 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
-import com.memobrain.memonow.features.cadernos.CadernosTelas
+import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
+import com.memobrain.memonow.features.cadernos.ListaCadernosTela
 import com.memobrain.memonow.features.login.LoginTela
 import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
@@ -39,7 +40,7 @@ fun AppNavegacao() {
         } else {
             try {
                 usuarioFirebase.reload().await()
-                telaAtual = RotasTelas.CADERNOS
+                telaAtual = RotasTelas.INICIO_APP
             } catch (exception: Exception) {
                 armazenamentoSessao.limparSessao()
                 telaAtual = RotasTelas.INICIAL
@@ -68,19 +69,23 @@ fun AppNavegacao() {
             RotasTelas.LOGIN -> {
                 LoginTela(
                     registrar = { telaAtual = RotasTelas.REGISTRAR },
-                    onLoginSucesso = { telaAtual = RotasTelas.CADERNOS },
+                    onLoginSucesso = { telaAtual = RotasTelas.INICIO_APP },
                 )
             }
 
             RotasTelas.REGISTRAR -> {
                 RegistrarTela(
-                    onCadastroSucesso = { telaAtual = RotasTelas.CADERNOS },
+                    onCadastroSucesso = { telaAtual = RotasTelas.INICIO_APP },
                     onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
                 )
             }
 
+            RotasTelas.INICIO_APP -> {
+                DashboardCadernosTela()
+            }
+
             RotasTelas.CADERNOS -> {
-                CadernosTelas()
+                ListaCadernosTela()
             }
         }
     }
