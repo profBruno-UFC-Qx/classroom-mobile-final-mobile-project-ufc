@@ -1,46 +1,76 @@
+
 package com.memobrain.memonow.features.cadernos
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// 1. MODELO DE DADOS
 data class Caderno(
     val id: String = "",
     val titulo: String = "",
     val revisados: Int = 0,
-    val restantes: Int = 0
+    val restantes: Int = 0,
 )
 
-// 2. TELA PRINCIPAL (FRONT-END)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CadernosTelas(modifier: Modifier = Modifier) {
+fun ListaCadernosTela(modifier: Modifier = Modifier) {
     val listaCadernos = remember {
         listOf(
             Caderno("1", "Ciência de Dados", 6, 14),
             Caderno("2", "Direito Constitucional", 7, 20),
-            Caderno("3", "Direito Processual Penal", 15, 48)
+            Caderno("3", "Direito Processual Penal", 15, 48),
         )
     }
 
     var tabSelecionada by remember { mutableIntStateOf(0) }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -48,131 +78,138 @@ fun CadernosTelas(modifier: Modifier = Modifier) {
                         text = "Cadernos",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A2536)
+                        color = Color(0xFF1A2536),
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF8F9FA)
-                )
+                    containerColor = Color(0xFFF6F8FB),
+                ),
             )
         },
         bottomBar = {
-            MenuInferiorExemplo()
+            MenuInferiorMemonow(
+                abaSelecionada = AbaMenu.CADERNOS,
+            )
         },
-        containerColor = Color(0xFFF8F9FA)
+        containerColor = Color(0xFFF6F8FB),
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         ) {
-
-            // Seletor de Abas
             TabSelector(
                 selecionado = tabSelecionada,
                 quantidadeMeus = listaCadernos.size,
                 onTabSelected = { novaTab ->
                     tabSelecionada = novaTab
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Lista Rolável de Cards
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
+                contentPadding = PaddingValues(bottom = 16.dp),
             ) {
                 items(listaCadernos) { caderno ->
                     CardCaderno(caderno = caderno)
                 }
             }
 
-            // Botão "NOVO CADERNO" fixo
             Button(
-                onClick = { /* Ação criar caderno */ },
+                onClick = { },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .padding(bottom = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF22496E)
+                    containerColor = Color(0xFF22496E),
                 ),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(28.dp),
             ) {
                 Text(
                     text = "NOVO CADERNO",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
+                    letterSpacing = 1.sp,
                 )
             }
         }
     }
 }
 
-// 3. SELETOR DE ABAS
 @Composable
-fun TabSelector(selecionado: Int, quantidadeMeus: Int, onTabSelected: (Int) -> Unit) {
+fun TabSelector(
+    selecionado: Int,
+    quantidadeMeus: Int,
+    onTabSelected: (Int) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
             .background(Color(0xFFF1F3F5), RoundedCornerShape(24.dp))
             .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val abas = listOf("Meus ($quantidadeMeus)", "Públicos")
+
         abas.forEachIndexed { index, texto ->
-            val eOSelecionado = selecionado == index
+            val selecionadoAgora = selecionado == index
+
             Button(
                 onClick = { onTabSelected(index) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (eOSelecionado) Color.White else Color.Transparent,
-                    contentColor = if (eOSelecionado) Color(0xFF1A2536) else Color(0xFF6C757D)
+                    containerColor = if (selecionadoAgora) Color.White else Color.Transparent,
+                    contentColor = if (selecionadoAgora) Color(0xFF1A2536) else Color(0xFF6C757D),
                 ),
-                elevation = if (eOSelecionado) ButtonDefaults.buttonElevation(2.dp) else null,
                 shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(0.dp)
+                contentPadding = PaddingValues(0.dp),
             ) {
-                Text(text = texto, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = texto,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                )
             }
         }
     }
 }
 
-// 4. CARD INDIVIDUAL DO CADERNO
 @Composable
 fun CardCaderno(caderno: Caderno) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                /* O que colocar aqui dentro vai rodar quando o usuário clicar no card */
-            },
+            .clickable { },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .background(Color(0xFFE6F4F1), RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = "📖", fontSize = 20.sp)
+                    Image(
+                        painter = painterResource(id = com.memobrain.memonow.R.drawable.ic_livro_caderno),
+                        contentDescription = "Caderno",
+                        modifier = Modifier.size(22.dp),
+                    )
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -182,21 +219,21 @@ fun CardCaderno(caderno: Caderno) {
                         text = caderno.titulo,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A2536)
+                        color = Color(0xFF1A2536),
                     )
                     Text(
                         text = "Clique para abrir",
                         fontSize = 12.sp,
-                        color = Color(0xFF9EA8B6)
+                        color = Color(0xFF9EA8B6),
                     )
                 }
 
-                IconButton(onClick = { /* Ação editar */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar",
                         tint = Color(0xFF9EA8B6),
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }
@@ -205,17 +242,17 @@ fun CardCaderno(caderno: Caderno) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = "${caderno.revisados} revisados",
                     fontSize = 11.sp,
-                    color = Color(0xFF6C757D)
+                    color = Color(0xFF6C757D),
                 )
                 Text(
                     text = "${caderno.restantes} restantes",
                     fontSize = 11.sp,
-                    color = Color(0xFF6C757D)
+                    color = Color(0xFF6C757D),
                 )
             }
 
@@ -231,48 +268,14 @@ fun CardCaderno(caderno: Caderno) {
                     .height(6.dp),
                 color = Color(0xFF4FA393),
                 trackColor = Color(0xFFE9ECEF),
-                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                strokeCap = StrokeCap.Round,
             )
         }
     }
 }
 
-// 5. MENU INFERIOR
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MenuInferiorExemplo() {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
-    ) {
-        val itens = listOf("Início", "Cadernos", "Progresso", "Perfil")
-        itens.forEachIndexed { index, item ->
-            NavigationBarItem(
-                selected = index == 1,
-                onClick = { /* Navegação */ },
-                label = { Text(text = item, fontSize = 11.sp) },
-                icon = {
-                    val emoji = when(index) {
-                        0 -> "🏠"
-                        1 -> "📖"
-                        2 -> "📊"
-                        else -> "👤"
-                    }
-                    Text(text = emoji, fontSize = 20.sp)
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color(0xFF22496E),
-                    selectedTextColor = Color(0xFF22496E),
-                    indicatorColor = Color(0xFFE6EDF5)
-                )
-            )
-        }
-    }
-}
-
-// 6. PREVIEW
 @Preview(showBackground = true, heightDp = 700)
 @Composable
-fun CadernosTelaPreview() {
-    CadernosTelas()
+fun ListaCadernosTelaPreview() {
+    ListaCadernosTela()
 }
