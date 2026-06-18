@@ -4,5 +4,6 @@ enum class RotasTelas {
     INICIAL,
     LOGIN,
     REGISTRAR,
-    CADERNOS,
+    HOME,       // ADICIONEI ESSA LINHA AQUI!
+    CADERNOS
 }

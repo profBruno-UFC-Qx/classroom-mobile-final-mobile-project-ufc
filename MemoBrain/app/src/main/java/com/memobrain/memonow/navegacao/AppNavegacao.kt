@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
 import com.memobrain.memonow.features.cadernos.CadernosTelas
+import com.memobrain.memonow.features.cadernos.CadernosTelas2
 import com.memobrain.memonow.features.login.LoginTela
 import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
@@ -39,7 +40,7 @@ fun AppNavegacao() {
         } else {
             try {
                 usuarioFirebase.reload().await()
-                telaAtual = RotasTelas.CADERNOS
+                telaAtual = RotasTelas.HOME
             } catch (exception: Exception) {
                 armazenamentoSessao.limparSessao()
                 telaAtual = RotasTelas.INICIAL
@@ -68,19 +69,38 @@ fun AppNavegacao() {
             RotasTelas.LOGIN -> {
                 LoginTela(
                     registrar = { telaAtual = RotasTelas.REGISTRAR },
-                    onLoginSucesso = { telaAtual = RotasTelas.CADERNOS },
+                    onLoginSucesso = { telaAtual = RotasTelas.HOME },
                 )
             }
 
             RotasTelas.REGISTRAR -> {
                 RegistrarTela(
-                    onCadastroSucesso = { telaAtual = RotasTelas.CADERNOS },
+                    onCadastroSucesso = { telaAtual = RotasTelas.HOME },
                     onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
                 )
             }
 
+            RotasTelas.HOME -> {
+                CadernosTelas2(
+                    onMetodoClick = { tituloMetodo ->
+                        telaAtual = RotasTelas.CADERNOS
+                    },
+                    onAtividadeClick = { /* Lógica extra */ },
+                    onCadernosBarClick = {
+                        telaAtual = RotasTelas.CADERNOS // Abre ao clicar na barra inferior
+                    }
+                )
+            }
+
             RotasTelas.CADERNOS -> {
-                CadernosTelas()
+                CadernosTelas(
+                    onInicioClick = {
+                        telaAtual = RotasTelas.HOME // Volta ao clicar no Início da barra inferior
+                    },
+                    onCadernoClick = { idCaderno ->
+                        println("Caderno selecionado: $idCaderno")
+                    }
+                )
             }
         }
     }

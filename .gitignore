@@ -1,0 +1,15 @@
+# Caches e build do projeto dentro de MemoBrain
+MemoBrain/.gradle/
+MemoBrain/.idea/
+MemoBrain/build/
+MemoBrain/app/build/
+*.iml
+.DS_Store
+local.properties
+*.log
+captures/
+Thumbs.db
+ehthumbs.db
+
+# Ignorar o arquivo de chaves do Firebase de forma correta:
+MemoBrain/app/google-services.json

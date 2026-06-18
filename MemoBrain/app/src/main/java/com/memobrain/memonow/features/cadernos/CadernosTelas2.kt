@@ -23,55 +23,52 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 data class MetodoEstudo(val titulo: String, val emoji: String)
 data class AtividadeRecente(val titulo: String, val subtitulo: String)
 
 @Composable
-fun CadernosTelas2(modifier: Modifier = Modifier) {
-    val chipsFiltros = listOf("Todos", "Revisar Hoje", "Em andamento", "Concluidos")
-    var chipSelecionado by remember { mutableStateOf("Todos") }
-
-    val metodosEstudo = listOf(
-        MetodoEstudo("Arrastar e Soltar", "🧩"),
-        MetodoEstudo("Resposta Aberta", "✍️"),
-        MetodoEstudo("Oclusão de Imagem", "🖼️")
-    )
-
-    val atividadesRecentes = listOf(
-        AtividadeRecente("Direito Administrativo", "Atos Administrativos"),
-        AtividadeRecente("Português", "Morfologia"),
-        AtividadeRecente("Ciência de Dados", "Mineração de Dados e Machine Learning")
-    )
+fun CadernosTelas2(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel(),
+    onMetodoClick: (String) -> Unit = {},
+    onAtividadeClick: (String) -> Unit = {},
+    onCadernosBarClick: () -> Unit = {}
+) {
+    val state by viewModel.uiState.collectAsState()
 
     Scaffold(
-        bottomBar = { MenuInferiorMemonow() },
-        containerColor = Color(0xFFF8F9FA)
+        bottomBar = {
+            MenuInferiorMemonow(onCadernosClick = onCadernosBarClick)
+        },
+        containerColor = Color(0xFFF8F9FA),
+        // 🟢 CORREÇÃO: Garante que o topo e o fundo respeitem as dimensões seguras do dispositivo
+        contentWindowInsets = WindowInsets.systemBars
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             // 1. CABEÇALHO DE USUÁRIO
-            HeaderUsuario(nome = "Allyson Novaes!")
+            HeaderUsuario(nome = state.nomeUsuario)
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 2. FILTROS HORIZONTAIS (CHIPS)
+            // 2. FILTROS HORIZONTAIS
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(chipsFiltros) { filtro ->
-                    val isSelected = filtro == chipSelecionado
+                items(state.chipsFiltros) { filtro ->
+                    val isSelected = filtro == state.chipSelecionado
                     FilterChipMemonow(
                         texto = filtro,
                         isSelected = isSelected,
-                        onClick = { chipSelecionado = filtro }
+                        onClick = { viewModel.selecionarFiltro(filtro) }
                     )
                 }
             }
@@ -90,8 +87,12 @@ fun CadernosTelas2(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                metodosEstudo.forEach { metodo ->
-                    CardMetodoEstudo(metodo = metodo, modifier = Modifier.weight(1f))
+                state.metodosEstudo.forEach { metodo ->
+                    CardMetodoEstudo(
+                        metodo = metodo,
+                        modifier = Modifier.weight(1f),
+                        onClick = { onMetodoClick(metodo.titulo) } // 🟢 CORREÇÃO: Passado por parâmetro nativo
+                    )
                 }
             }
 
@@ -118,15 +119,16 @@ fun CadernosTelas2(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                atividadesRecentes.forEach { atividade ->
-                    CardAtividadeRecente(atividade = atividade)
+                state.atividadesRecentes.forEach { atividade ->
+                    CardAtividadeRecente(
+                        atividade = atividade,
+                        onClick = { onAtividadeClick(atividade.titulo) }
+                    )
                 }
             }
         }
     }
 }
-
-
 
 @Composable
 fun HeaderUsuario(nome: String) {
@@ -177,9 +179,11 @@ fun FilterChipMemonow(texto: String, isSelected: Boolean, onClick: () -> Unit) {
     }
 }
 
+// 🟢 CORREÇÃO: Ajustado para usar o clique nativo do Card do Material 3
 @Composable
-fun CardMetodoEstudo(metodo: MetodoEstudo, modifier: Modifier = Modifier) {
+fun CardMetodoEstudo(metodo: MetodoEstudo, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Card(
+        onClick = onClick,
         modifier = modifier.height(80.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
@@ -247,9 +251,11 @@ fun CardCadernoAndamento() {
 }
 
 @Composable
-fun CardAtividadeRecente(atividade: AtividadeRecente) {
+fun CardAtividadeRecente(atividade: AtividadeRecente, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
@@ -302,18 +308,20 @@ fun CardAtividadeRecente(atividade: AtividadeRecente) {
 }
 
 @Composable
-fun MenuInferiorMemonow() {
+fun MenuInferiorMemonow(onCadernosClick: () -> Unit) {
     NavigationBar(
         containerColor = Color.White,
         tonalElevation = 8.dp,
-        modifier = Modifier.height(72.dp)
+        modifier = Modifier.navigationBarsPadding().height(64.dp) // 🟢 CORREÇÃO: Ajuste de respiro do sistema
     ) {
         val itens = listOf("Início", "Cadernos", "Progresso", "Perfil")
         itens.forEachIndexed { index, item ->
-            val isSelected = index == 1
+            val isSelected = index == 0
             NavigationBarItem(
                 selected = isSelected,
-                onClick = { /* Navegar */ },
+                onClick = {
+                    if (index == 1) onCadernosClick()
+                },
                 label = {
                     Text(
                         text = item,
@@ -338,10 +346,4 @@ fun MenuInferiorMemonow() {
             )
         }
     }
-}
-
-@Preview(showBackground = true, heightDp = 800)
-@Composable
-fun CadernosTela2Preview() {
-    CadernosTelas2()
 }

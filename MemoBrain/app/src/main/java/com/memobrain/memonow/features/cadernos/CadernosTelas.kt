@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 // 1. MODELO DE DADOS
 data class Caderno(
@@ -29,15 +30,13 @@ data class Caderno(
 // 2. TELA PRINCIPAL (FRONT-END)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CadernosTelas(modifier: Modifier = Modifier) {
-    val listaCadernos = remember {
-        listOf(
-            Caderno("1", "Ciência de Dados", 6, 14),
-            Caderno("2", "Direito Constitucional", 7, 20),
-            Caderno("3", "Direito Processual Penal", 15, 48)
-        )
-    }
-
+fun CadernosTelas(
+    modifier: Modifier = Modifier,
+    viewModel: CadernosViewModel = viewModel(),
+    onInicioClick: () -> Unit = {},
+    onCadernoClick: (String) -> Unit = {}
+) {
+    val state by viewModel.uiState.collectAsState()
     var tabSelecionada by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -57,21 +56,21 @@ fun CadernosTelas(modifier: Modifier = Modifier) {
             )
         },
         bottomBar = {
-            MenuInferiorExemplo()
+            MenuInferiorExemplo(onInicioClick = onInicioClick)
         },
-        containerColor = Color(0xFFF8F9FA)
+        containerColor = Color(0xFFF8F9FA),
+        contentWindowInsets = WindowInsets.systemBars
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
 
-            // Seletor de Abas
             TabSelector(
                 selecionado = tabSelecionada,
-                quantidadeMeus = listaCadernos.size,
+                quantidadeMeus = state.listaCadernos.size,
                 onTabSelected = { novaTab ->
                     tabSelecionada = novaTab
                 }
@@ -79,34 +78,58 @@ fun CadernosTelas(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Lista Rolável de Cards
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                items(listaCadernos) { caderno ->
-                    CardCaderno(caderno = caderno)
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF4FA393))
+                }
+            } else {
+                // Se o usuário selecionar a aba 0 (Meus), mostra os dados, se for a aba 1 (Públicos), mostra vazio por enquanto
+                val listaFiltrada = if (tabSelecionada == 0) state.listaCadernos else emptyList()
+
+                if (listaFiltrada.isEmpty() && tabSelecionada == 1) {
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Nenhum caderno público disponível.", color = Color(0xFF6C757D), fontSize = 14.sp)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(listaFiltrada) { caderno ->
+                            CardCaderno(
+                                caderno = caderno,
+                                onClick = { onCadernoClick(caderno.id) }
+                            )
+                        }
+                    }
                 }
             }
 
-            // Botão "NOVO CADERNO" fixo
+            // Botão "NOVO CADERNO" com margem interna para não colar no menu inferior
             Button(
                 onClick = { /* Ação criar caderno */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
-                    .padding(bottom = 8.dp),
+                    .height(48.dp)
+                    .padding(bottom = 4.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF22496E)
                 ),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(24.dp)
             ) {
                 Text(
                     text = "NOVO CADERNO",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
+                    letterSpacing = 1.sp,
+                    fontSize = 14.sp
                 )
             }
         }
@@ -148,13 +171,11 @@ fun TabSelector(selecionado: Int, quantidadeMeus: Int, onTabSelected: (Int) -> U
 
 // 4. CARD INDIVIDUAL DO CADERNO
 @Composable
-fun CardCaderno(caderno: Caderno) {
+fun CardCaderno(caderno: Caderno, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                /* O que colocar aqui dentro vai rodar quando o usuário clicar no card */
-            },
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -240,16 +261,20 @@ fun CardCaderno(caderno: Caderno) {
 // 5. MENU INFERIOR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuInferiorExemplo() {
+fun MenuInferiorExemplo(onInicioClick: () -> Unit) {
     NavigationBar(
         containerColor = Color.White,
+        modifier = Modifier.navigationBarsPadding(),
         tonalElevation = 8.dp
     ) {
         val itens = listOf("Início", "Cadernos", "Progresso", "Perfil")
         itens.forEachIndexed { index, item ->
+            val isSelected = index == 1
             NavigationBarItem(
-                selected = index == 1,
-                onClick = { /* Navegação */ },
+                selected = isSelected,
+                onClick = {
+                    if (index == 0) onInicioClick()
+                },
                 label = { Text(text = item, fontSize = 11.sp) },
                 icon = {
                     val emoji = when(index) {
@@ -268,11 +293,4 @@ fun MenuInferiorExemplo() {
             )
         }
     }
-}
-
-// 6. PREVIEW
-@Preview(showBackground = true, heightDp = 700)
-@Composable
-fun CadernosTelaPreview() {
-    CadernosTelas()
 }
