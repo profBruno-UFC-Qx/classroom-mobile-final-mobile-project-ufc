@@ -17,6 +17,8 @@ import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
 import com.memobrain.memonow.features.cadernos.CadernosTelas
 import com.memobrain.memonow.features.cadernos.CadernosTelas2
 import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen // 🟢 Importado aqui
+import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
+import com.memobrain.memonow.features.cadernos.ListaCadernosTela
 import com.memobrain.memonow.features.login.LoginTela
 import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
@@ -42,6 +44,7 @@ fun AppNavegacao() {
             try {
                 usuarioFirebase.reload().await()
                 telaAtual = RotasTelas.HOME
+                telaAtual = RotasTelas.INICIO_APP
             } catch (exception: Exception) {
                 armazenamentoSessao.limparSessao()
                 telaAtual = RotasTelas.INICIAL
@@ -71,12 +74,14 @@ fun AppNavegacao() {
                 LoginTela(
                     registrar = { telaAtual = RotasTelas.REGISTRAR },
                     onLoginSucesso = { telaAtual = RotasTelas.HOME },
+                    onLoginSucesso = { telaAtual = RotasTelas.INICIO_APP },
                 )
             }
 
             RotasTelas.REGISTRAR -> {
                 RegistrarTela(
                     onCadastroSucesso = { telaAtual = RotasTelas.HOME },
+                    onCadastroSucesso = { telaAtual = RotasTelas.INICIO_APP },
                     onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
                 )
             }
@@ -93,6 +98,12 @@ fun AppNavegacao() {
                 )
             }
 
+            RotasTelas.INICIO_APP -> {
+                DashboardCadernosTela(
+                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
+                )
+            }
+
             RotasTelas.CADERNOS -> {
                 CadernosTelas(
                     onInicioClick = {
@@ -102,6 +113,9 @@ fun AppNavegacao() {
                         // 🟢 CORREÇÃO: Direciona para os tópicos do caderno ao clicar no card
                         telaAtual = RotasTelas.DETALHE_CADERNO
                     }
+                )
+                ListaCadernosTela(
+                    onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
                 )
             }
 
