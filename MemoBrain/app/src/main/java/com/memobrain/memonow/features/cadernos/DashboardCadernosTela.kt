@@ -57,6 +57,10 @@ data class AtividadeRecente(
     val subtitulo: String,
 )
 
+data class CadernoAndamento(
+    val titulo: String,
+)
+
 enum class AbaMenu {
     INICIO,
     CADERNOS,
@@ -77,6 +81,13 @@ fun DashboardCadernosTela(
             MetodoEstudo("Arrastar e Soltar", R.drawable.ic_arrastar_e_soltar),
             MetodoEstudo("Resposta Aberta", R.drawable.ic_resposta_aberta),
             MetodoEstudo("Oclusão de Imagem", R.drawable.ic_oclusao_imagem),
+        )
+
+    val cadernosEmAndamento =
+        listOf(
+            CadernoAndamento("Direito Administrativo"),
+            CadernoAndamento("Ciência de Dados"),
+            CadernoAndamento("Direito Processual Penal"),
         )
 
     val atividadesRecentes =
@@ -170,10 +181,10 @@ fun DashboardCadernosTela(
                     Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                repeat(3) {
-                    CardCadernoAndamento()
+                cadernosEmAndamento.forEach { caderno ->
+                    CardCadernoAndamento(caderno = caderno)
                 }
             }
 
@@ -324,22 +335,47 @@ fun SectionHeader(
 }
 
 @Composable
-fun CardCadernoAndamento() {
+fun CardCadernoAndamento(caderno: CadernoAndamento) {
     Card(
-        modifier = Modifier.size(width = 150.dp, height = 120.dp),
+        modifier =
+            Modifier
+                .width(128.dp)
+                .height(118.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_memobrain_logo),
-                contentDescription = "Caderno",
-                modifier = Modifier.size(92.dp),
-                contentScale = ContentScale.Fit,
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_memobrain_logo),
+                    contentDescription = caderno.titulo,
+                    modifier = Modifier.size(72.dp),
+                    contentScale = ContentScale.Fit,
+                )
+            }
+
+            Text(
+                text = caderno.titulo,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1A2536),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
