@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 data class Caderno(
     val id: String = "",
@@ -61,15 +63,11 @@ data class Caderno(
 fun ListaCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaInicio: () -> Unit = {},
+    onCadernoClick: (String) -> Unit = {},
+    viewModel: CadernosViewModel = viewModel()
 ) {
-    val listaCadernos =
-        remember {
-            listOf(
-                Caderno("1", "Ciência de Dados", 6, 14),
-                Caderno("2", "Direito Constitucional", 7, 20),
-                Caderno("3", "Direito Processual Penal", 15, 48),
-            )
-        }
+    val uiState by viewModel.uiState.collectAsState()
+    val listaCadernos = uiState.listaCadernos
 
     var tabSelecionada by remember { mutableIntStateOf(0) }
 
@@ -126,8 +124,11 @@ fun ListaCadernosTela(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 16.dp),
             ) {
-                items(listaCadernos) { caderno ->
-                    CardCaderno(caderno = caderno)
+                items(uiState.listaCadernos) { caderno ->
+                    CardCaderno(
+                        caderno = caderno,
+                        onClick = { onCadernoClick(caderno.id) }
+                    )
                 }
             }
 
@@ -200,12 +201,15 @@ fun TabSelector(
 }
 
 @Composable
-fun CardCaderno(caderno: Caderno) {
+fun CardCaderno(
+    caderno: Caderno,
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable { },
+                .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),

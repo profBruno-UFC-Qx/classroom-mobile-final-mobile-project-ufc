@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.features.cadernos.TopicoExercicio
 
@@ -49,8 +48,12 @@ fun DetalheCadernoScreen(
             )
         },
         bottomBar = {
-            // 🟢 Integrado com o menu inferior padrão que criamos que possui o clique de voltar pro Início
-            MenuInferiorExemplo(onInicioClick = onBackClick)
+            MenuInferiorMemonow(
+                abaSelecionada = AbaMenu.CADERNOS,
+                onAbaClick = { aba ->
+                    if (aba == AbaMenu.INICIO) onBackClick()
+                }
+            )
         },
         containerColor = Color(0xFFF7FAFC),
         contentWindowInsets = WindowInsets.systemBars

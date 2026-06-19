@@ -1,6 +1,7 @@
 package com.memobrain.memonow.features.cadernos
 
 import androidx.lifecycle.ViewModel
+import com.memobrain.memonow.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,8 +31,8 @@ class HomeViewModel : ViewModel() {
         val filtros = listOf("Todos", "Revisar Hoje", "Em andamento", "Concluidos")
 
         val metodos = listOf(
-            MetodoEstudo("Múltipla Escolha", "🎯"),
-            MetodoEstudo("Flashcard Clássico", "🧠")
+            MetodoEstudo("Oclusão de Imagem", R.drawable.ic_oclusao_imagem),
+            MetodoEstudo("Resposta Aberta", R.drawable.ic_resposta_aberta)
         )
 
         val atividades = listOf(

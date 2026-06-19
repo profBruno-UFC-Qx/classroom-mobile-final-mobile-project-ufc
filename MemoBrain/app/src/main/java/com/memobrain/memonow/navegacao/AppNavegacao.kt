@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
-import com.memobrain.memonow.features.cadernos.CadernosTelas
-import com.memobrain.memonow.features.cadernos.CadernosTelas2
 import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen // 🟢 Importado aqui
 import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
 import com.memobrain.memonow.features.cadernos.ListaCadernosTela
@@ -73,28 +71,20 @@ fun AppNavegacao() {
             RotasTelas.LOGIN -> {
                 LoginTela(
                     registrar = { telaAtual = RotasTelas.REGISTRAR },
-                    onLoginSucesso = { telaAtual = RotasTelas.HOME },
                     onLoginSucesso = { telaAtual = RotasTelas.INICIO_APP },
                 )
             }
 
             RotasTelas.REGISTRAR -> {
                 RegistrarTela(
-                    onCadastroSucesso = { telaAtual = RotasTelas.HOME },
                     onCadastroSucesso = { telaAtual = RotasTelas.INICIO_APP },
                     onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
                 )
             }
 
             RotasTelas.HOME -> {
-                CadernosTelas2(
-                    onMetodoClick = { tituloMetodo ->
-                        telaAtual = RotasTelas.CADERNOS
-                    },
-                    onAtividadeClick = { /* Lógica extra */ },
-                    onCadernosBarClick = {
-                        telaAtual = RotasTelas.CADERNOS
-                    }
+                DashboardCadernosTela(
+                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
                 )
             }
 
@@ -105,17 +95,11 @@ fun AppNavegacao() {
             }
 
             RotasTelas.CADERNOS -> {
-                CadernosTelas(
-                    onInicioClick = {
-                        telaAtual = RotasTelas.HOME
-                    },
-                    onCadernoClick = { idCaderno ->
-                        // 🟢 CORREÇÃO: Direciona para os tópicos do caderno ao clicar no card
-                        telaAtual = RotasTelas.DETALHE_CADERNO
-                    }
-                )
                 ListaCadernosTela(
                     onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
+                    onCadernoClick = { idCaderno ->
+                        telaAtual = RotasTelas.DETALHE_CADERNO
+                    }
                 )
             }
 

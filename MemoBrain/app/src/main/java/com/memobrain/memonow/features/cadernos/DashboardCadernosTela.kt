@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.R
 
 data class MetodoEstudo(
@@ -72,29 +74,15 @@ enum class AbaMenu {
 fun DashboardCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaCadernos: () -> Unit = {},
+    viewModel: HomeViewModel = viewModel(),
 ) {
-    val chipsFiltros = listOf("Todos", "Revisar Hoje", "Em andamento", "Concluídos")
-    var chipSelecionado by remember { mutableStateOf("Todos") }
-
-    val metodosEstudo =
-        listOf(
-            MetodoEstudo("Arrastar e Soltar", R.drawable.ic_arrastar_e_soltar),
-            MetodoEstudo("Resposta Aberta", R.drawable.ic_resposta_aberta),
-            MetodoEstudo("Oclusão de Imagem", R.drawable.ic_oclusao_imagem),
-        )
+    val uiState by viewModel.uiState.collectAsState()
 
     val cadernosEmAndamento =
         listOf(
             CadernoAndamento("Direito Administrativo"),
             CadernoAndamento("Ciência de Dados"),
             CadernoAndamento("Direito Processual Penal"),
-        )
-
-    val atividadesRecentes =
-        listOf(
-            AtividadeRecente("Direito Administrativo", "Atos Administrativos"),
-            AtividadeRecente("Português", "Morfologia"),
-            AtividadeRecente("Ciência de Dados", "Mineração de Dados e Machine Learning"),
         )
 
     Scaffold(
@@ -124,7 +112,7 @@ fun DashboardCadernosTela(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 18.dp, vertical = 10.dp),
         ) {
-            HeaderUsuario(nome = "Allyson Novaes!")
+            HeaderUsuario(nome = uiState.nomeUsuario)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -135,11 +123,11 @@ fun DashboardCadernosTela(
                         .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                chipsFiltros.forEach { filtro ->
+                uiState.chipsFiltros.forEach { filtro ->
                     FilterChipMemonow(
                         texto = filtro,
-                        isSelected = filtro == chipSelecionado,
-                        onClick = { chipSelecionado = filtro },
+                        isSelected = filtro == uiState.chipSelecionado,
+                        onClick = { viewModel.selecionarFiltro(filtro) },
                     )
                 }
             }
@@ -159,7 +147,7 @@ fun DashboardCadernosTela(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                metodosEstudo.forEach { metodo ->
+                uiState.metodosEstudo.forEach { metodo ->
                     CardMetodoEstudo(
                         metodo = metodo,
                         modifier = Modifier.weight(1f),
@@ -201,7 +189,7 @@ fun DashboardCadernosTela(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                atividadesRecentes.forEach { atividade ->
+                uiState.atividadesRecentes.forEach { atividade ->
                     CardAtividadeRecente(atividade = atividade)
                 }
             }
