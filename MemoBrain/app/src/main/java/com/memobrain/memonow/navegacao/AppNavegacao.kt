@@ -16,6 +16,7 @@ import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
 import com.memobrain.memonow.features.cadernos.CadernosTelas
 import com.memobrain.memonow.features.cadernos.CadernosTelas2
+import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen // 🟢 Importado aqui
 import com.memobrain.memonow.features.login.LoginTela
 import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
@@ -87,7 +88,7 @@ fun AppNavegacao() {
                     },
                     onAtividadeClick = { /* Lógica extra */ },
                     onCadernosBarClick = {
-                        telaAtual = RotasTelas.CADERNOS // Abre ao clicar na barra inferior
+                        telaAtual = RotasTelas.CADERNOS
                     }
                 )
             }
@@ -95,10 +96,26 @@ fun AppNavegacao() {
             RotasTelas.CADERNOS -> {
                 CadernosTelas(
                     onInicioClick = {
-                        telaAtual = RotasTelas.HOME // Volta ao clicar no Início da barra inferior
+                        telaAtual = RotasTelas.HOME
                     },
                     onCadernoClick = { idCaderno ->
-                        println("Caderno selecionado: $idCaderno")
+                        // 🟢 CORREÇÃO: Direciona para os tópicos do caderno ao clicar no card
+                        telaAtual = RotasTelas.DETALHE_CADERNO
+                    }
+                )
+            }
+
+            // 🟢 CORREÇÃO: Adicionada a nova rota gerenciando as ações de retorno e cliques nos tópicos
+            RotasTelas.DETALHE_CADERNO -> {
+                DetalheCadernoScreen(
+                    onBackClick = {
+                        telaAtual = RotasTelas.CADERNOS
+                    },
+                    onNovoArquivoClick = {
+                        println("Novo arquivo clicado")
+                    },
+                    onTopicoClick = { tituloTopico ->
+                        println("Topico clicado: $tituloTopico")
                     }
                 )
             }
