@@ -1,4 +1,3 @@
-
 package com.memobrain.memonow.features.cadernos
 
 import androidx.compose.foundation.Image
@@ -64,6 +63,7 @@ fun ListaCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaInicio: () -> Unit = {},
     onCadernoClick: (String) -> Unit = {},
+    onNovoCadernoClick: () -> Unit = {}, // 🟢 Adicionado o parâmetro de clique aqui
     viewModel: CadernosViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -90,6 +90,7 @@ fun ListaCadernosTela(
             )
         },
         bottomBar = {
+            // Mantendo o seu componente padrão de menu inferior
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.CADERNOS,
                 onAbaClick = { aba ->
@@ -133,7 +134,7 @@ fun ListaCadernosTela(
             }
 
             Button(
-                onClick = { },
+                onClick = onNovoCadernoClick, // 🟢 Vinculado à ação para abrir a tela do formulário
                 modifier =
                     Modifier
                         .fillMaxWidth()

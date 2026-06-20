@@ -7,5 +7,11 @@ enum class RotasTelas {
     HOME,
     INICIO_APP,
     CADERNOS,
-    DETALHE_CADERNO
+    DETALHE_CADERNO,
+
+    CRIAR_CADERNO,
+
+    CRIAR_ARQUIVO,
+
+    QUIZ_MULTIPLA_ESCOLHA
 }

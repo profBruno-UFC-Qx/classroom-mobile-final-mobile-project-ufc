@@ -14,9 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
-import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen // 🟢 Importado aqui
+import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen
 import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
 import com.memobrain.memonow.features.cadernos.ListaCadernosTela
+import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
+import com.memobrain.memonow.features.cadernos.CriarArquivoScreen
+import com.memobrain.memonow.features.cadernos.QuizScreen
 import com.memobrain.memonow.features.login.LoginTela
 import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
@@ -26,6 +29,10 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun AppNavegacao() {
     var telaAtual by remember { mutableStateOf(RotasTelas.INICIAL) }
+
+    // 🟢 Nova variável para guardar o ID do arquivo clicado!
+    var idArquivoSelecionado by remember { mutableStateOf("") }
+
     val context = LocalContext.current
     val armazenamentoSessao = remember { ArmazenamentoSessao(context) }
     var verificandoSessao by remember { mutableStateOf(true) }
@@ -41,7 +48,6 @@ fun AppNavegacao() {
         } else {
             try {
                 usuarioFirebase.reload().await()
-                telaAtual = RotasTelas.HOME
                 telaAtual = RotasTelas.INICIO_APP
             } catch (exception: Exception) {
                 armazenamentoSessao.limparSessao()
@@ -99,21 +105,52 @@ fun AppNavegacao() {
                     onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
                     onCadernoClick = { idCaderno ->
                         telaAtual = RotasTelas.DETALHE_CADERNO
+                    },
+                    onNovoCadernoClick = {
+                        telaAtual = RotasTelas.CRIAR_CADERNO
                     }
                 )
             }
 
-            // 🟢 CORREÇÃO: Adicionada a nova rota gerenciando as ações de retorno e cliques nos tópicos
             RotasTelas.DETALHE_CADERNO -> {
                 DetalheCadernoScreen(
                     onBackClick = {
                         telaAtual = RotasTelas.CADERNOS
                     },
                     onNovoArquivoClick = {
-                        println("Novo arquivo clicado")
+                        telaAtual = RotasTelas.CRIAR_ARQUIVO
                     },
-                    onTopicoClick = { tituloTopico ->
-                        println("Topico clicado: $tituloTopico")
+                    onTopicoClick = { idOuTituloClicado ->
+                        // 🟢 Salva o ID antes de mudar de tela
+                        idArquivoSelecionado = idOuTituloClicado
+                        telaAtual = RotasTelas.QUIZ_MULTIPLA_ESCOLHA
+                    }
+                )
+            }
+
+            RotasTelas.CRIAR_CADERNO -> {
+                CriarCadernoScreen(
+                    onBackClick = {
+                        telaAtual = RotasTelas.CADERNOS
+                    }
+                )
+            }
+
+            RotasTelas.CRIAR_ARQUIVO -> {
+                CriarArquivoScreen(
+                    onBackClick = {
+                        telaAtual = RotasTelas.DETALHE_CADERNO
+                    }
+                )
+            }
+
+            RotasTelas.QUIZ_MULTIPLA_ESCOLHA -> {
+                QuizScreen(
+                    // TODO: Quando o colega for fazer o Firebase, ele vai descomentar a linha abaixo
+                    // e atualizar a QuizScreen para receber esse parâmetro.
+                    // arquivoId = idArquivoSelecionado,
+                    onFecharClick = {
+                        telaAtual = RotasTelas.DETALHE_CADERNO
                     }
                 )
             }

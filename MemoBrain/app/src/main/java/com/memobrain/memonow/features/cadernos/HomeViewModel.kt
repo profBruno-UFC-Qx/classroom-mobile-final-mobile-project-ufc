@@ -31,8 +31,8 @@ class HomeViewModel : ViewModel() {
         val filtros = listOf("Todos", "Revisar Hoje", "Em andamento", "Concluidos")
 
         val metodos = listOf(
-            MetodoEstudo("Oclusão de Imagem", R.drawable.ic_oclusao_imagem),
-            MetodoEstudo("Resposta Aberta", R.drawable.ic_resposta_aberta)
+            MetodoEstudo(titulo = "Múltipla Escolha", iconeRes = R.drawable.ic_resposta_aberta), // Ícone provisório
+            MetodoEstudo(titulo = "Flashcard", iconeRes = R.drawable.ic_oclusao_imagem) // Ícone provisório
         )
 
         val atividades = listOf(

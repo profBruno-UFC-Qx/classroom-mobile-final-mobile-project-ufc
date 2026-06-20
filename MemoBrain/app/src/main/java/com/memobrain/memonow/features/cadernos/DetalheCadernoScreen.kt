@@ -9,7 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
+import androidx.compose.material3.* // 🟢 Garante o import de Scaffold, Button, Text, etc.
+import androidx.compose.material3.Card // 🟢 CORREÇÃO: Import explícito do Card do Material 3
+import androidx.compose.material3.CardDefaults // 🟢 CORREÇÃO: Import explícito das propriedades do Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.memobrain.memonow.features.cadernos.TopicoExercicio
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +53,9 @@ fun DetalheCadernoScreen(
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.CADERNOS,
                 onAbaClick = { aba ->
-                    if (aba == AbaMenu.INICIO) onBackClick()
+                    if (aba == AbaMenu.INICIO) {
+                        onBackClick() // 🟢 Retorna para o painel principal ao clicar no Início
+                    }
                 }
             )
         },
