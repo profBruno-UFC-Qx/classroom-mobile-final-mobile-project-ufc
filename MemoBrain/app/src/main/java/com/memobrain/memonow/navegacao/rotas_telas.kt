@@ -9,6 +9,7 @@ enum class RotasTelas {
     CADERNOS,
     DETALHE_CADERNO,
     EDITAR_CADERNO,
+    EDITAR_ARQUIVO,
 
     CRIAR_CADERNO,
 

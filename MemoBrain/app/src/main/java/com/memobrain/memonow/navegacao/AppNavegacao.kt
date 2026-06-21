@@ -19,6 +19,8 @@ import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
 import com.memobrain.memonow.features.cadernos.ListaCadernosTela
 import com.memobrain.memonow.features.cadernos.EditNotebookScreen
 import com.memobrain.memonow.features.cadernos.EditNotebookViewModel
+import com.memobrain.memonow.features.cadernos.EditArquivoScreen
+import com.memobrain.memonow.features.cadernos.EditArquivoViewModel
 import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.features.cadernos.CriarArquivoScreen
@@ -135,6 +137,20 @@ fun AppNavegacao() {
                         // 🟢 Salva o ID antes de mudar de tela
                         idArquivoSelecionado = idOuTituloClicado
                         telaAtual = RotasTelas.QUIZ_MULTIPLA_ESCOLHA
+                    },
+                    onEditarArquivoClick = { idOuTitulo ->
+                        idArquivoSelecionado = idOuTitulo
+                        telaAtual = RotasTelas.EDITAR_ARQUIVO
+                    }
+                )
+            }
+
+            RotasTelas.EDITAR_ARQUIVO -> {
+                val editArquivoViewModel: EditArquivoViewModel = viewModel()
+                EditArquivoScreen(
+                    viewModel = editArquivoViewModel,
+                    onNavigateBack = {
+                        telaAtual = RotasTelas.DETALHE_CADERNO
                     }
                 )
             }

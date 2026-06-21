@@ -1,6 +1,7 @@
 package com.memobrain.memonow.features.cadernos
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,7 +30,8 @@ fun DetalheCadernoScreen(
     viewModel: DetalheCadernoViewModel = viewModel(),
     onBackClick: () -> Unit,
     onNovoArquivoClick: () -> Unit,
-    onTopicoClick: (String) -> Unit
+    onTopicoClick: (String) -> Unit,
+    onEditarArquivoClick: (String) -> Unit = {} // 🟢 Adicionado callback para edição
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -116,7 +118,8 @@ fun DetalheCadernoScreen(
                     items(state.listaTopicos) { topico ->
                         CardTopicoItem(
                             topico = topico,
-                            onClick = { onTopicoClick(topico.titulo) }
+                            onClick = { onTopicoClick(topico.titulo) },
+                            onEditarClick = { onEditarArquivoClick(topico.titulo) }
                         )
                     }
                 }
@@ -145,10 +148,13 @@ fun DetalheCadernoScreen(
 }
 
 @Composable
-fun CardTopicoItem(topico: TopicoExercicio, onClick: () -> Unit) {
+fun CardTopicoItem(
+    topico: TopicoExercicio, 
+    onClick: () -> Unit,
+    onEditarClick: () -> Unit = {} // 🟢 Novo callback
+) {
     Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -184,12 +190,14 @@ fun CardTopicoItem(topico: TopicoExercicio, onClick: () -> Unit) {
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF2D3748)
                     )
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar",
-                        tint = Color(0xFF718096),
-                        modifier = Modifier.size(16.dp)
-                    )
+                    IconButton(onClick = onEditarClick) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar",
+                            tint = Color(0xFF718096),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
