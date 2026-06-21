@@ -40,7 +40,7 @@ fun DetalheCadernoScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Cadernos",
+                        text = "Arquivos",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF2D3748)
