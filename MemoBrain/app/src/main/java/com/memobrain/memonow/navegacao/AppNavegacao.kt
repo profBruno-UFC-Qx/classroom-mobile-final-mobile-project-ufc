@@ -122,7 +122,12 @@ fun AppNavegacao() {
 
             RotasTelas.EDITAR_CADERNO -> {
                 val editViewModel: EditNotebookViewModel = viewModel()
-                EditNotebookScreen(viewModel = editViewModel)
+                EditNotebookScreen(
+                    viewModel = editViewModel,
+                    onNavigateBack = {
+                        telaAtual = RotasTelas.CADERNOS
+                    }
+                )
             }
 
             RotasTelas.DETALHE_CADERNO -> {
