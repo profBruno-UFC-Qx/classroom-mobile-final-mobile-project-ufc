@@ -8,6 +8,7 @@ enum class RotasTelas {
     INICIO_APP,
     CADERNOS,
     DETALHE_CADERNO,
+    EDITAR_CADERNO,
 
     CRIAR_CADERNO,
 

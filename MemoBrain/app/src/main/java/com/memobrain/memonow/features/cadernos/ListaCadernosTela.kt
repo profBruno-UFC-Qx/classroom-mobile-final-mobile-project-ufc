@@ -63,7 +63,8 @@ fun ListaCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaInicio: () -> Unit = {},
     onCadernoClick: (String) -> Unit = {},
-    onNovoCadernoClick: () -> Unit = {}, // 🟢 Adicionado o parâmetro de clique aqui
+    onEditarClick: (String) -> Unit = {}, // 🟢 Adicionado callback para edição
+    onNovoCadernoClick: () -> Unit = {},
     viewModel: CadernosViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -128,7 +129,8 @@ fun ListaCadernosTela(
                 items(uiState.listaCadernos) { caderno ->
                     CardCaderno(
                         caderno = caderno,
-                        onClick = { onCadernoClick(caderno.id) }
+                        onClick = { onCadernoClick(caderno.id) },
+                        onEditarClick = { onEditarClick(caderno.id) } // 🟢 Passando ação de edição
                     )
                 }
             }
@@ -204,7 +206,8 @@ fun TabSelector(
 @Composable
 fun CardCaderno(
     caderno: Caderno,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onEditarClick: () -> Unit = {} // 🟢 Novo callback
 ) {
     Card(
         modifier =
@@ -252,7 +255,7 @@ fun CardCaderno(
                     )
                 }
 
-                IconButton(onClick = { }) {
+                IconButton(onClick = onEditarClick) { // 🟢 Agora chama o callback de edição
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar",

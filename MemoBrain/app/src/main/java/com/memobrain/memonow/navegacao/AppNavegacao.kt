@@ -17,7 +17,10 @@ import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
 import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen
 import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
 import com.memobrain.memonow.features.cadernos.ListaCadernosTela
+import com.memobrain.memonow.features.cadernos.EditNotebookScreen
+import com.memobrain.memonow.features.cadernos.EditNotebookViewModel
 import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.features.cadernos.CriarArquivoScreen
 import com.memobrain.memonow.features.cadernos.QuizScreen
 import com.memobrain.memonow.features.login.LoginTela
@@ -106,10 +109,18 @@ fun AppNavegacao() {
                     onCadernoClick = { idCaderno ->
                         telaAtual = RotasTelas.DETALHE_CADERNO
                     },
+                    onEditarClick = { idCaderno ->
+                        telaAtual = RotasTelas.EDITAR_CADERNO
+                    },
                     onNovoCadernoClick = {
                         telaAtual = RotasTelas.CRIAR_CADERNO
                     }
                 )
+            }
+
+            RotasTelas.EDITAR_CADERNO -> {
+                val editViewModel: EditNotebookViewModel = viewModel()
+                EditNotebookScreen(viewModel = editViewModel)
             }
 
             RotasTelas.DETALHE_CADERNO -> {
