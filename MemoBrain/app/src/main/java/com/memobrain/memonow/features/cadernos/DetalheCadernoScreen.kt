@@ -179,26 +179,12 @@ fun CardTopicoItem(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = topico.titulo,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2D3748)
-                    )
-                    IconButton(onClick = onEditarClick) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar",
-                            tint = Color(0xFF718096),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
+                Text(
+                    text = topico.titulo,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF2D3748)
+                )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -217,6 +203,15 @@ fun CardTopicoItem(
                         color = Color(0xFF718096)
                     )
                 }
+            }
+
+            IconButton(onClick = onEditarClick) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar",
+                    tint = Color(0xFF9EA8B6),
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
