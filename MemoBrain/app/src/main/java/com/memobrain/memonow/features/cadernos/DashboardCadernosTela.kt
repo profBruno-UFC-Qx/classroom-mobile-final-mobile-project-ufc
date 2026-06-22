@@ -74,6 +74,7 @@ enum class AbaMenu {
 fun DashboardCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaCadernos: () -> Unit = {},
+    onMetodoClick: (String) -> Unit = {}, // 🟢 Novo callback
     viewModel: HomeViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -150,7 +151,9 @@ fun DashboardCadernosTela(
                 uiState.metodosEstudo.forEach { metodo ->
                     CardMetodoEstudo(
                         metodo = metodo,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onMetodoClick(metodo.titulo) }, // 🟢 Torna o card clicável
                     )
                 }
             }

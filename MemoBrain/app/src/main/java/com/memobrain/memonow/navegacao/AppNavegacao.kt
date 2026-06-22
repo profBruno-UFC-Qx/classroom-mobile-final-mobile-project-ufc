@@ -21,6 +21,8 @@ import com.memobrain.memonow.features.cadernos.EditNotebookScreen
 import com.memobrain.memonow.features.cadernos.EditNotebookViewModel
 import com.memobrain.memonow.features.cadernos.EditArquivoScreen
 import com.memobrain.memonow.features.cadernos.EditArquivoViewModel
+import com.memobrain.memonow.features.cadernos.CreateFlashcardScreen
+import com.memobrain.memonow.features.cadernos.CreateFlashcardViewModel
 import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.features.cadernos.CriarArquivoScreen
@@ -96,12 +98,22 @@ fun AppNavegacao() {
             RotasTelas.HOME -> {
                 DashboardCadernosTela(
                     onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
+                    onMetodoClick = { metodo ->
+                        if (metodo == "Flashcard") {
+                            telaAtual = RotasTelas.FLASHCARD
+                        }
+                    }
                 )
             }
 
             RotasTelas.INICIO_APP -> {
                 DashboardCadernosTela(
                     onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
+                    onMetodoClick = { metodo ->
+                        if (metodo == "Flashcard") {
+                            telaAtual = RotasTelas.FLASHCARD
+                        }
+                    }
                 )
             }
 
@@ -183,6 +195,16 @@ fun AppNavegacao() {
                     // arquivoId = idArquivoSelecionado,
                     onFecharClick = {
                         telaAtual = RotasTelas.DETALHE_CADERNO
+                    }
+                )
+            }
+
+            RotasTelas.FLASHCARD -> {
+                val flashcardViewModel: CreateFlashcardViewModel = viewModel()
+                CreateFlashcardScreen(
+                    viewModel = flashcardViewModel,
+                    onNavigateBack = {
+                        telaAtual = RotasTelas.INICIO_APP
                     }
                 )
             }
