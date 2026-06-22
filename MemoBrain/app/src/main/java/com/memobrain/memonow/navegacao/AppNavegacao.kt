@@ -1,41 +1,96 @@
 package com.memobrain.memonow.navegacao
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-
-import com.memobrain.memonow.features.cadernos.CadernosTelas
-import com.memobrain.memonow.features.cadernos.CadernosTelas2
+import androidx.compose.ui.platform.LocalContext
+import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
+import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
+import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
+import com.memobrain.memonow.features.cadernos.ListaCadernosTela
 import com.memobrain.memonow.features.login.LoginTela
+import com.memobrain.memonow.features.login.TelaInicial
+import com.memobrain.memonow.features.registrar.RegistrarTela
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun AppNavegacao() {
+    var telaAtual by remember { mutableStateOf(RotasTelas.INICIAL) }
+    val context = LocalContext.current
+    val armazenamentoSessao = remember { ArmazenamentoSessao(context) }
+    var verificandoSessao by remember { mutableStateOf(true) }
+    val servicoLogin = remember { ServicoLoginFirebase() }
 
-    val navController = rememberNavController()
+    LaunchedEffect(Unit) {
+        val usuarioFirebase = servicoLogin.obterUsuarioAtual()
+        val sessao = armazenamentoSessao.sessaoFlow.first()
 
-    NavHost(
-        navController = navController,
-        startDestination = RotasTelas.LOGIN
-    ) {
-
-        composable(RotasTelas.LOGIN) {
-            LoginTela(
-                modifier = Modifier
-            )
+        if (sessao == null || usuarioFirebase == null) {
+            armazenamentoSessao.limparSessao()
+            telaAtual = RotasTelas.INICIAL
+        } else {
+            try {
+                usuarioFirebase.reload().await()
+                telaAtual = RotasTelas.INICIO_APP
+            } catch (exception: Exception) {
+                armazenamentoSessao.limparSessao()
+                telaAtual = RotasTelas.INICIAL
+            }
         }
 
-        composable(RotasTelas.CADERNOS) {
-            CadernosTelas(
-                modifier = Modifier
-            )
-        }
+        verificandoSessao = false
+    }
 
-        composable(RotasTelas.INICIO) {
-            CadernosTelas2(
-                modifier = Modifier
-            )
+    if (verificandoSessao) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Carregando...")
+        }
+    } else {
+        when (telaAtual) {
+            RotasTelas.INICIAL -> {
+                TelaInicial(
+                    entrar = { telaAtual = RotasTelas.LOGIN },
+                    registrar = { telaAtual = RotasTelas.REGISTRAR },
+                )
+            }
+
+            RotasTelas.LOGIN -> {
+                LoginTela(
+                    registrar = { telaAtual = RotasTelas.REGISTRAR },
+                    onLoginSucesso = { telaAtual = RotasTelas.INICIO_APP },
+                )
+            }
+
+            RotasTelas.REGISTRAR -> {
+                RegistrarTela(
+                    onCadastroSucesso = { telaAtual = RotasTelas.INICIO_APP },
+                    onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
+                )
+            }
+
+            RotasTelas.INICIO_APP -> {
+                DashboardCadernosTela(
+                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
+                )
+            }
+
+            RotasTelas.CADERNOS -> {
+                ListaCadernosTela(
+                    onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
+                )
+            }
         }
     }
 }
