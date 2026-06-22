@@ -23,6 +23,8 @@ import com.memobrain.memonow.features.cadernos.EditArquivoScreen
 import com.memobrain.memonow.features.cadernos.EditArquivoViewModel
 import com.memobrain.memonow.features.cadernos.CreateFlashcardScreen
 import com.memobrain.memonow.features.cadernos.CreateFlashcardViewModel
+import com.memobrain.memonow.features.cadernos.CreateMultipleChoiceScreen
+import com.memobrain.memonow.features.cadernos.CreateMultipleChoiceViewModel
 import com.memobrain.memonow.features.cadernos.PlayFlashcardScreen
 import com.memobrain.memonow.features.cadernos.PlayFlashcardViewModel
 import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
@@ -101,8 +103,9 @@ fun AppNavegacao() {
                 DashboardCadernosTela(
                     onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
                     onMetodoClick = { metodo ->
-                        if (metodo == "Flashcard") {
-                            telaAtual = RotasTelas.FLASHCARD
+                        when (metodo) {
+                            "Flashcard" -> telaAtual = RotasTelas.FLASHCARD
+                            "Múltipla Escolha" -> telaAtual = RotasTelas.CRIAR_MULTIPLA_ESCOLHA
                         }
                     }
                 )
@@ -112,8 +115,9 @@ fun AppNavegacao() {
                 DashboardCadernosTela(
                     onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
                     onMetodoClick = { metodo ->
-                        if (metodo == "Flashcard") {
-                            telaAtual = RotasTelas.FLASHCARD
+                        when (metodo) {
+                            "Flashcard" -> telaAtual = RotasTelas.FLASHCARD
+                            "Múltipla Escolha" -> telaAtual = RotasTelas.CRIAR_MULTIPLA_ESCOLHA
                         }
                     }
                 )
@@ -208,6 +212,16 @@ fun AppNavegacao() {
                 val flashcardViewModel: CreateFlashcardViewModel = viewModel()
                 CreateFlashcardScreen(
                     viewModel = flashcardViewModel,
+                    onNavigateBack = {
+                        telaAtual = RotasTelas.INICIO_APP
+                    }
+                )
+            }
+
+            RotasTelas.CRIAR_MULTIPLA_ESCOLHA -> {
+                val multipleChoiceViewModel: CreateMultipleChoiceViewModel = viewModel()
+                CreateMultipleChoiceScreen(
+                    viewModel = multipleChoiceViewModel,
                     onNavigateBack = {
                         telaAtual = RotasTelas.INICIO_APP
                     }
