@@ -198,7 +198,7 @@ fun CardTopicoItem(
                         color = Color(0xFF718096)
                     )
                     Text(
-                        text = "${topico.qtdQuestoes} questões",
+                        text = "${topico.qtdQuestoes} ${if (topico.qtdQuestoes == 1) "cartão" else "cartões"}",
                         fontSize = 11.sp,
                         color = Color(0xFF718096)
                     )

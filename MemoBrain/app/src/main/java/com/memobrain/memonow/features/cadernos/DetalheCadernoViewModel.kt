@@ -31,6 +31,7 @@ class DetalheCadernoViewModel : ViewModel() {
         _uiState.value = DetalheCadernoUiState(
             isLoading = false,
             listaTopicos = listOf(
+                TopicoExercicio("Introdução", "FlashCard", 1),
                 TopicoExercicio("Limpeza e Pré-processamento", "PDF 00", 14),
                 TopicoExercicio("Algoritimos de Classificação", "PDF 01", 8),
                 TopicoExercicio("Mineração de Dados", "PDF 02", 7),

@@ -23,6 +23,8 @@ import com.memobrain.memonow.features.cadernos.EditArquivoScreen
 import com.memobrain.memonow.features.cadernos.EditArquivoViewModel
 import com.memobrain.memonow.features.cadernos.CreateFlashcardScreen
 import com.memobrain.memonow.features.cadernos.CreateFlashcardViewModel
+import com.memobrain.memonow.features.cadernos.PlayFlashcardScreen
+import com.memobrain.memonow.features.cadernos.PlayFlashcardViewModel
 import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.features.cadernos.CriarArquivoScreen
@@ -150,10 +152,13 @@ fun AppNavegacao() {
                     onNovoArquivoClick = {
                         telaAtual = RotasTelas.CRIAR_ARQUIVO
                     },
-                    onTopicoClick = { idOuTituloClicado ->
-                        // 🟢 Salva o ID antes de mudar de tela
-                        idArquivoSelecionado = idOuTituloClicado
-                        telaAtual = RotasTelas.QUIZ_MULTIPLA_ESCOLHA
+                    onTopicoClick = { tituloClicado ->
+                        if (tituloClicado == "Introdução") {
+                            telaAtual = RotasTelas.PLAY_FLASHCARD
+                        } else {
+                            // 🟢 Restaura a navegação para Múltipla Escolha nos outros cards
+                            telaAtual = RotasTelas.QUIZ_MULTIPLA_ESCOLHA
+                        }
                     },
                     onEditarArquivoClick = { idOuTitulo ->
                         idArquivoSelecionado = idOuTitulo
@@ -205,6 +210,16 @@ fun AppNavegacao() {
                     viewModel = flashcardViewModel,
                     onNavigateBack = {
                         telaAtual = RotasTelas.INICIO_APP
+                    }
+                )
+            }
+
+            RotasTelas.PLAY_FLASHCARD -> {
+                val playViewModel: PlayFlashcardViewModel = viewModel()
+                PlayFlashcardScreen(
+                    viewModel = playViewModel,
+                    onNavigateBack = {
+                        telaAtual = RotasTelas.DETALHE_CADERNO
                     }
                 )
             }

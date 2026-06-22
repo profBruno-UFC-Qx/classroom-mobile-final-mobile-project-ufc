@@ -16,5 +16,6 @@ enum class RotasTelas {
     CRIAR_ARQUIVO,
 
     QUIZ_MULTIPLA_ESCOLHA,
-    FLASHCARD
+    FLASHCARD,
+    PLAY_FLASHCARD
 }
