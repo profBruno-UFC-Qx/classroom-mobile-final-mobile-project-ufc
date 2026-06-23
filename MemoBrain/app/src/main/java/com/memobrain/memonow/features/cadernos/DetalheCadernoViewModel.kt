@@ -1,42 +1,98 @@
 package com.memobrain.memonow.features.cadernos
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.ListenerRegistration
+import com.memobrain.memonow.data.repository.repositorio.RepositorioArquivo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-// 🟢 CORREÇÃO: Adicionada a classe de dados que estava faltando para mapear os tópicos
 data class TopicoExercicio(
-    val titulo: String,
-    val codigoPdf: String,
-    val qtdQuestoes: Int
+    val id: String = "",
+    val titulo: String = "",
+    val descricao: String = "",
+    val metodo: String = "",
 )
 
 data class DetalheCadernoUiState(
-    val nomeCaderno: String = "CIÊNCIA DE DADOS",
+    val nomeCaderno: String = "",
     val listaTopicos: List<TopicoExercicio> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = true,
+    val mensagemErro: String? = null,
 )
 
 class DetalheCadernoViewModel : ViewModel() {
+    private val repositorioArquivo = RepositorioArquivo()
+
+    private var listenerArquivos: ListenerRegistration? = null
+    private var cadernoAtualId: String? = null
 
     private val _uiState = MutableStateFlow(DetalheCadernoUiState())
     val uiState: StateFlow<DetalheCadernoUiState> = _uiState.asStateFlow()
 
-    init {
-        carregarTopicos()
+    fun carregarArquivos(
+        cadernoId: String,
+        nomeCaderno: String,
+    ) {
+        if (cadernoId.isBlank()) {
+            _uiState.value =
+                DetalheCadernoUiState(
+                    nomeCaderno = nomeCaderno,
+                    isLoading = false,
+                    mensagemErro = "Caderno não identificado.",
+                )
+            return
+        }
+
+        if (cadernoAtualId == cadernoId) {
+            return
+        }
+
+        cadernoAtualId = cadernoId
+        listenerArquivos?.remove()
+
+        _uiState.value =
+            DetalheCadernoUiState(
+                nomeCaderno = nomeCaderno,
+                isLoading = true,
+            )
+
+        listenerArquivos =
+            repositorioArquivo.observarArquivosDoCaderno(
+                cadernoId = cadernoId,
+                aoAtualizar = { arquivos ->
+                    val topicos =
+                        arquivos.map { arquivo ->
+                            TopicoExercicio(
+                                id = arquivo.id,
+                                titulo = arquivo.titulo,
+                                descricao = arquivo.descricao,
+                                metodo = arquivo.metodo,
+                            )
+                        }
+
+                    _uiState.update {
+                        it.copy(
+                            listaTopicos = topicos,
+                            isLoading = false,
+                            mensagemErro = null,
+                        )
+                    }
+                },
+                aoErro = { erro ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            mensagemErro = erro,
+                        )
+                    }
+                },
+            )
     }
 
-    private fun carregarTopicos() {
-        _uiState.value = DetalheCadernoUiState(
-            isLoading = false,
-            listaTopicos = listOf(
-                TopicoExercicio("Introdução", "FlashCard", 1),
-                TopicoExercicio("Limpeza e Pré-processamento", "PDF 00", 14),
-                TopicoExercicio("Algoritimos de Classificação", "PDF 01", 8),
-                TopicoExercicio("Mineração de Dados", "PDF 02", 7),
-                TopicoExercicio("OLAP e Data Warehouse", "PDF 03", 21)
-            )
-        )
+    override fun onCleared() {
+        listenerArquivos?.remove()
+        super.onCleared()
     }
 }
