@@ -39,7 +39,6 @@ import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-import java.util.Locale
 
 @Composable
 fun AppNavegacao() {
@@ -330,32 +329,31 @@ fun AppNavegacao() {
                     totalQuestoesSummary = total
                     tempoSummary = tempo
                     telaAtual = RotasTelas.FLASHCARD_SUMMARY
-                }
+                },
             )
         }
 
         RotasTelas.FLASHCARD_SUMMARY -> {
             val summaryViewModel: FlashcardSummaryViewModel = viewModel()
-            val porcentagem = if (totalQuestoesSummary > 0) {
-                (acertosSummary * 100) / totalQuestoesSummary
-            } else 0
 
-            val segundosTotais = tempoSummary / 1000
-            val minutos = segundosTotais / 60
-            val segundos = segundosTotais % 60
-            val tempoFormatado = String.format(Locale.getDefault(), "%d:%02d", minutos, segundos)
+            LaunchedEffect(
+                acertosSummary,
+                totalQuestoesSummary,
+                tempoSummary,
+            ) {
+                summaryViewModel.setup(
+                    correctAnswers = acertosSummary,
+                    totalQuestions = totalQuestoesSummary,
+                    durationMillis = tempoSummary,
+                    onNavigateBack = {
+                        telaAtual = RotasTelas.DETALHE_CADERNO
+                    },
+                )
+            }
 
-            summaryViewModel.setup(
-                accuracy = "$porcentagem%",
-                time = tempoFormatado,
-                xp = acertosSummary * 10,
-                totalQuestions = totalQuestoesSummary,
-                onNavigateBack = {
-                    telaAtual = RotasTelas.DETALHE_CADERNO
-                }
+            FlashcardSummaryScreen(
+                viewModel = summaryViewModel,
             )
-
-            FlashcardSummaryScreen(viewModel = summaryViewModel)
         }
     }
 }
