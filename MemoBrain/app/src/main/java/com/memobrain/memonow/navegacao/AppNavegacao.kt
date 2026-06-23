@@ -21,7 +21,7 @@ import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-
+import com.memobrain.memonow.features.perfil.ConfigTela
 @Composable
 fun AppNavegacao() {
     var telaAtual by remember { mutableStateOf(RotasTelas.INICIAL) }
@@ -83,6 +83,15 @@ fun AppNavegacao() {
             RotasTelas.INICIO_APP -> {
                 DashboardCadernosTela(
                     onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
+                    onIrParaPerfil = { telaAtual = RotasTelas.PERFIL }
+                )
+            }
+
+
+            RotasTelas.PERFIL -> {
+                ConfigTela(
+                    onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
+                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS }
                 )
             }
 

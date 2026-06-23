@@ -6,4 +6,5 @@ enum class RotasTelas {
     REGISTRAR,
     INICIO_APP,
     CADERNOS,
+    PERFIL,
 }

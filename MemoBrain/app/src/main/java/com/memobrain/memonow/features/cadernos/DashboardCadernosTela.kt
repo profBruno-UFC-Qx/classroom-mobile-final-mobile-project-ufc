@@ -72,6 +72,7 @@ enum class AbaMenu {
 fun DashboardCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaCadernos: () -> Unit = {},
+    onIrParaPerfil: () -> Unit
 ) {
     val chipsFiltros = listOf("Todos", "Revisar Hoje", "Em andamento", "Concluídos")
     var chipSelecionado by remember { mutableStateOf("Todos") }
@@ -107,7 +108,9 @@ fun DashboardCadernosTela(
                         AbaMenu.CADERNOS -> {
                             onIrParaCadernos()
                         }
-
+                        AbaMenu.PERFIL -> {
+                            onIrParaPerfil()
+                        }
                         else -> {}
                     }
                 },
@@ -539,5 +542,8 @@ fun MenuInferiorMemonow(
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 fun DashboardCadernosTelaPreview() {
-    DashboardCadernosTela()
+    DashboardCadernosTela(
+        onIrParaCadernos = {},
+        onIrParaPerfil = {}
+    )
 }
