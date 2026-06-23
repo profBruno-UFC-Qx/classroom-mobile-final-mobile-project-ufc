@@ -6,6 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,6 +29,8 @@ import com.memobrain.memonow.features.cadernos.EditArquivoScreen
 import com.memobrain.memonow.features.cadernos.EditArquivoViewModel
 import com.memobrain.memonow.features.cadernos.EditNotebookScreen
 import com.memobrain.memonow.features.cadernos.EditNotebookViewModel
+import com.memobrain.memonow.features.cadernos.FlashcardSummaryScreen
+import com.memobrain.memonow.features.cadernos.FlashcardSummaryViewModel
 import com.memobrain.memonow.features.cadernos.ListaCadernosTela
 import com.memobrain.memonow.features.cadernos.RevisarArquivoScreen
 import com.memobrain.memonow.features.cadernos.RevisarArquivoViewModel
@@ -35,6 +39,7 @@ import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 @Composable
 fun AppNavegacao() {
@@ -65,6 +70,10 @@ fun AppNavegacao() {
     var descricaoArquivoSelecionado by remember {
         mutableStateOf("")
     }
+
+    var acertosSummary by remember { mutableIntStateOf(0) }
+    var totalQuestoesSummary by remember { mutableIntStateOf(0) }
+    var tempoSummary by remember { mutableLongStateOf(0L) }
 
     val context = LocalContext.current
 
@@ -316,7 +325,37 @@ fun AppNavegacao() {
 
                     telaAtual = RotasTelas.CRIAR_MULTIPLA_ESCOLHA
                 },
+                onFinalizado = { acertos, total, tempo ->
+                    acertosSummary = acertos
+                    totalQuestoesSummary = total
+                    tempoSummary = tempo
+                    telaAtual = RotasTelas.FLASHCARD_SUMMARY
+                }
             )
+        }
+
+        RotasTelas.FLASHCARD_SUMMARY -> {
+            val summaryViewModel: FlashcardSummaryViewModel = viewModel()
+            val porcentagem = if (totalQuestoesSummary > 0) {
+                (acertosSummary * 100) / totalQuestoesSummary
+            } else 0
+
+            val segundosTotais = tempoSummary / 1000
+            val minutos = segundosTotais / 60
+            val segundos = segundosTotais % 60
+            val tempoFormatado = String.format(Locale.getDefault(), "%d:%02d", minutos, segundos)
+
+            summaryViewModel.setup(
+                accuracy = "$porcentagem%",
+                time = tempoFormatado,
+                xp = acertosSummary * 10,
+                totalQuestions = totalQuestoesSummary,
+                onNavigateBack = {
+                    telaAtual = RotasTelas.DETALHE_CADERNO
+                }
+            )
+
+            FlashcardSummaryScreen(viewModel = summaryViewModel)
         }
     }
 }

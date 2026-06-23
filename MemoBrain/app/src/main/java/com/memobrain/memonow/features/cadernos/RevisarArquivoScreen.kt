@@ -80,6 +80,7 @@ fun RevisarArquivoScreen(
     onFecharClick: () -> Unit,
     onAdicionarPerguntaAbertaClick: () -> Unit,
     onAdicionarMultiplaEscolhaClick: () -> Unit,
+    onFinalizado: (Int, Int, Long) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -573,7 +574,7 @@ fun RevisarArquivoScreen(
                         temProximo = state.temProximo,
                         onContinuar = {
                             viewModel.continuarParaProximo(
-                                onFinalizado = onFecharClick,
+                                onFinalizado = onFinalizado,
                             )
                         },
                     )

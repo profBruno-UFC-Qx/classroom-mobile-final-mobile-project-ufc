@@ -25,6 +25,8 @@ data class RevisarArquivoUiState(
     val feedbackRespostaCorreta: String = "",
     val isLoading: Boolean = true,
     val mensagemErro: String? = null,
+    val acertos: Int = 0,
+    val tempoInicio: Long = System.currentTimeMillis()
 ) {
     val conteudoAtual: ConteudoEstudo?
         get() = conteudos.getOrNull(indiceAtual)
@@ -257,19 +259,17 @@ class RevisarArquivoViewModel : ViewModel() {
                 respostaCorreta = acertou,
                 feedbackVisivel = true,
                 feedbackRespostaCorreta = respostaCorretaTexto,
+                acertos = if (acertou) it.acertos + 1 else it.acertos
             )
         }
     }
 
-    fun continuarParaProximo(onFinalizado: () -> Unit) {
+    fun continuarParaProximo(onFinalizado: (Int, Int, Long) -> Unit) {
         val estadoAtual = _uiState.value
 
         if (!estadoAtual.temProximo) {
-            _uiState.update {
-                it.copy(feedbackVisivel = false)
-            }
-
-            onFinalizado()
+            val tempoGasto = System.currentTimeMillis() - estadoAtual.tempoInicio
+            onFinalizado(estadoAtual.acertos, estadoAtual.conteudos.size, tempoGasto)
             return
         }
 
