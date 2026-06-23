@@ -31,9 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,11 +52,14 @@ data class MetodoEstudo(
 )
 
 data class AtividadeRecente(
+    val idArquivo: String = "",
     val titulo: String,
     val subtitulo: String,
+    val metodo: String = "",
 )
 
 data class CadernoAndamento(
+    val id: String = "",
     val titulo: String,
 )
 
@@ -74,17 +74,9 @@ enum class AbaMenu {
 fun DashboardCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaCadernos: () -> Unit = {},
-    onMetodoClick: (String) -> Unit = {}, // 🟢 Novo callback
     viewModel: HomeViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    val cadernosEmAndamento =
-        listOf(
-            CadernoAndamento("Direito Administrativo"),
-            CadernoAndamento("Ciência de Dados"),
-            CadernoAndamento("Direito Processual Penal"),
-        )
 
     Scaffold(
         modifier = modifier,
@@ -92,12 +84,8 @@ fun DashboardCadernosTela(
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.INICIO,
                 onAbaClick = { aba ->
-                    when (aba) {
-                        AbaMenu.CADERNOS -> {
-                            onIrParaCadernos()
-                        }
-
-                        else -> {}
+                    if (aba == AbaMenu.CADERNOS) {
+                        onIrParaCadernos()
                     }
                 },
             )
@@ -105,30 +93,30 @@ fun DashboardCadernosTela(
         containerColor = Color(0xFFF6F8FB),
     ) { paddingValues ->
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .statusBarsPadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 18.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .statusBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 18.dp, vertical = 10.dp),
         ) {
             HeaderUsuario(nome = uiState.nomeUsuario)
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 uiState.chipsFiltros.forEach { filtro ->
                     FilterChipMemonow(
                         texto = filtro,
                         isSelected = filtro == uiState.chipSelecionado,
-                        onClick = { viewModel.selecionarFiltro(filtro) },
+                        onClick = {
+                            viewModel.selecionarFiltro(filtro)
+                        },
                     )
                 }
             }
@@ -151,9 +139,7 @@ fun DashboardCadernosTela(
                 uiState.metodosEstudo.forEach { metodo ->
                     CardMetodoEstudo(
                         metodo = metodo,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onMetodoClick(metodo.titulo) }, // 🟢 Torna o card clicável
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -167,15 +153,26 @@ fun DashboardCadernosTela(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            Row(
-                modifier =
-                    Modifier
+            if (uiState.cadernosEmAndamento.isEmpty()) {
+                Text(
+                    text = "Nenhum caderno estudado recentemente.",
+                    fontSize = 13.sp,
+                    color = Color(0xFF8A94A6),
+                )
+            } else {
+                Row(
+                    modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                cadernosEmAndamento.forEach { caderno ->
-                    CardCadernoAndamento(caderno = caderno)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    uiState.cadernosEmAndamento
+                        .take(5)
+                        .forEach { caderno ->
+                            CardCadernoAndamento(
+                                caderno = caderno,
+                            )
+                        }
                 }
             }
 
@@ -188,12 +185,24 @@ fun DashboardCadernosTela(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                uiState.atividadesRecentes.forEach { atividade ->
-                    CardAtividadeRecente(atividade = atividade)
+            if (uiState.atividadesRecentes.isEmpty()) {
+                Text(
+                    text = "Nenhum arquivo estudado recentemente.",
+                    fontSize = 13.sp,
+                    color = Color(0xFF8A94A6),
+                )
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    uiState.atividadesRecentes
+                        .take(5)
+                        .forEach { atividade ->
+                            CardAtividadeRecente(
+                                atividade = atividade,
+                            )
+                        }
                 }
             }
 
@@ -211,10 +220,9 @@ fun HeaderUsuario(nome: String) {
         Image(
             painter = painterResource(id = R.drawable.foto_cerebro),
             contentDescription = "Foto do usuário",
-            modifier =
-                Modifier
-                    .size(44.dp)
-                    .clip(CircleShape),
+            modifier = Modifier
+                .size(44.dp)
+                .clip(CircleShape),
             contentScale = ContentScale.Crop,
         )
 
@@ -227,7 +235,9 @@ fun HeaderUsuario(nome: String) {
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1A2536),
             )
+
             Spacer(modifier = Modifier.height(2.dp))
+
             Text(
                 text = "Vamos revisar hoje?",
                 fontSize = 12.sp,
@@ -246,15 +256,30 @@ fun FilterChipMemonow(
     Surface(
         modifier = Modifier.clickable { onClick() },
         shape = RoundedCornerShape(22.dp),
-        color = if (isSelected) Color(0xFF22496E) else Color(0xFFF0F3F7),
+        color = if (isSelected) {
+            Color(0xFF22496E)
+        } else {
+            Color(0xFFF0F3F7)
+        },
         shadowElevation = 0.dp,
     ) {
         Text(
             text = texto,
-            color = if (isSelected) Color.White else Color(0xFF5F6B7A),
+            color = if (isSelected) {
+                Color.White
+            } else {
+                Color(0xFF5F6B7A)
+            },
             fontSize = 13.sp,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            fontWeight = if (isSelected) {
+                FontWeight.SemiBold
+            } else {
+                FontWeight.Medium
+            },
+            modifier = Modifier.padding(
+                horizontal = 16.dp,
+                vertical = 10.dp,
+            ),
         )
     }
 }
@@ -266,15 +291,18 @@ fun CardMetodoEstudo(
 ) {
     Card(
         modifier = modifier.height(88.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+        ),
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -315,44 +343,52 @@ fun SectionHeader(
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1A2536),
         )
+
         Text(
             text = "Ver mais",
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF4EB6A6),
-            modifier = Modifier.clickable { onVerMaisClick() },
+            modifier = Modifier.clickable {
+                onVerMaisClick()
+            },
         )
     }
 }
 
 @Composable
-fun CardCadernoAndamento(caderno: CadernoAndamento) {
+fun CardCadernoAndamento(
+    caderno: CadernoAndamento,
+) {
     Card(
-        modifier =
-            Modifier
-                .width(128.dp)
-                .height(118.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .width(128.dp)
+            .height(118.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+        ),
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 10.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_memobrain_logo),
+                    painter = painterResource(
+                        id = R.drawable.ic_memobrain_logo,
+                    ),
                     contentDescription = caderno.titulo,
                     modifier = Modifier.size(72.dp),
                     contentScale = ContentScale.Fit,
@@ -373,28 +409,37 @@ fun CardCadernoAndamento(caderno: CadernoAndamento) {
 }
 
 @Composable
-fun CardAtividadeRecente(atividade: AtividadeRecente) {
+fun CardAtividadeRecente(
+    atividade: AtividadeRecente,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp,
+        ),
     ) {
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier =
-                    Modifier
-                        .size(60.dp)
-                        .background(Color(0xFFE9F6F2), RoundedCornerShape(12.dp)),
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(
+                        Color(0xFFE9F6F2),
+                        RoundedCornerShape(12.dp),
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_livro_caderno),
+                    painter = painterResource(
+                        id = R.drawable.ic_livro_caderno,
+                    ),
                     contentDescription = "Atividade",
                     modifier = Modifier.size(22.dp),
                 )
@@ -402,7 +447,9 @@ fun CardAtividadeRecente(atividade: AtividadeRecente) {
 
             Spacer(modifier = Modifier.width(14.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
                 Text(
                     text = atividade.titulo,
                     fontSize = 16.sp,
@@ -411,7 +458,9 @@ fun CardAtividadeRecente(atividade: AtividadeRecente) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+
                 Spacer(modifier = Modifier.height(2.dp))
+
                 Text(
                     text = atividade.subtitulo,
                     fontSize = 13.sp,
@@ -438,60 +487,100 @@ fun MenuInferiorMemonow(
 ) {
     val azulPrincipal = Color(0xFF22496E)
     val cinza = Color(0xFF8E98A8)
-    val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    val itens =
-        listOf(
-            Triple(AbaMenu.INICIO, "Início", Pair(R.drawable.ic_inicio, R.drawable.ic_inicio_azul)),
-            Triple(AbaMenu.CADERNOS, "Cadernos", Pair(R.drawable.ic_cadernos, R.drawable.ic_cadernos_azul)),
-            Triple(AbaMenu.PROGRESSO, "Progresso", Pair(R.drawable.ic_desempenho, R.drawable.ic_desempenho_azul)),
-            Triple(AbaMenu.PERFIL, "Perfil", Pair(R.drawable.ic_usuario, R.drawable.ic_usuario_azul)),
-        )
+    val bottomInset = WindowInsets.navigationBars
+        .asPaddingValues()
+        .calculateBottomPadding()
+
+    val itens = listOf(
+        Triple(
+            AbaMenu.INICIO,
+            "Início",
+            Pair(
+                R.drawable.ic_inicio,
+                R.drawable.ic_inicio_azul,
+            ),
+        ),
+        Triple(
+            AbaMenu.CADERNOS,
+            "Cadernos",
+            Pair(
+                R.drawable.ic_cadernos,
+                R.drawable.ic_cadernos_azul,
+            ),
+        ),
+        Triple(
+            AbaMenu.PROGRESSO,
+            "Progresso",
+            Pair(
+                R.drawable.ic_desempenho,
+                R.drawable.ic_desempenho_azul,
+            ),
+        ),
+        Triple(
+            AbaMenu.PERFIL,
+            "Perfil",
+            Pair(
+                R.drawable.ic_usuario,
+                R.drawable.ic_usuario_azul,
+            ),
+        ),
+    )
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color.White,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = RoundedCornerShape(
+            topStart = 24.dp,
+            topEnd = 24.dp,
+        ),
         shadowElevation = 10.dp,
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color.White),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White),
         ) {
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(82.dp)
-                        .padding(horizontal = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(82.dp)
+                    .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Top,
             ) {
                 itens.forEach { (aba, titulo, icones) ->
                     val selecionado = aba == abaSelecionada
-                    val iconeAtual = if (selecionado) icones.second else icones.first
+
+                    val iconeAtual = if (selecionado) {
+                        icones.second
+                    } else {
+                        icones.first
+                    }
 
                     Column(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .height(82.dp)
-                                .clickable { onAbaClick(aba) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(82.dp)
+                            .clickable {
+                                onAbaClick(aba)
+                            },
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
                     ) {
                         Box(
-                            modifier =
-                                Modifier
-                                    .padding(top = 0.dp)
-                                    .width(34.dp)
-                                    .height(3.dp)
-                                    .background(
-                                        color = if (selecionado) azulPrincipal else Color.Transparent,
-                                        shape = RoundedCornerShape(50),
-                                    ),
+                            modifier = Modifier
+                                .padding(top = 0.dp)
+                                .width(34.dp)
+                                .height(3.dp)
+                                .background(
+                                    color = if (selecionado) {
+                                        azulPrincipal
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                    shape = RoundedCornerShape(50),
+                                ),
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -507,8 +596,16 @@ fun MenuInferiorMemonow(
                         Text(
                             text = titulo,
                             fontSize = 11.sp,
-                            fontWeight = if (selecionado) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (selecionado) azulPrincipal else cinza,
+                            fontWeight = if (selecionado) {
+                                FontWeight.SemiBold
+                            } else {
+                                FontWeight.Normal
+                            },
+                            color = if (selecionado) {
+                                azulPrincipal
+                            } else {
+                                cinza
+                            },
                         )
                     }
                 }
@@ -516,11 +613,10 @@ fun MenuInferiorMemonow(
 
             if (bottomInset > 0.dp) {
                 Spacer(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(bottomInset)
-                            .background(Color.White),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(bottomInset)
+                        .background(Color.White),
                 )
             }
         }
