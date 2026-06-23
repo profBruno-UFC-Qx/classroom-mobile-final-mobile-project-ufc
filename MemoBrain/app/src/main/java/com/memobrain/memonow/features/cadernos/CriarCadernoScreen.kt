@@ -139,7 +139,7 @@ fun CriarCadernoScreen(
             Text(
                 text = "Descrição (opcional)",
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.Medium,
                 color = Color(0xFF718096),
             )
 
@@ -230,7 +230,7 @@ fun CriarCadernoScreen(
             Text(
                 text = "Cor (opcional)",
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.Medium,
                 color = Color(0xFF718096),
             )
 
