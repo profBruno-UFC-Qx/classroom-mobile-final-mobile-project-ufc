@@ -10,50 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4a74cad3-c62b-4e97-b008-6b34bc7015b7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/local/datastore/ArmazenamentoSessao.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/local/datastore/PreferenciasUsuario.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/remote/autenticacao/GerenciadorAutenticacao.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/remote/autenticacao/ServicoCadastroFirebase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/remote/autenticacao/ServicoLoginFirebase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/remote/firestore/FonteDadosFirestoreCaderno.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/remote/firestore/FonteDadosFirestoreHistorico.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/remote/firestore/FonteDadosFirestoreUsuario.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/repository/repositorio/RepositorioAutenticacao.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/repository/repositorio/RepositorioCaderno.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/data/repository/repositorio/RepositorioUsuario.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/cadernos/DashboardCadernosTela.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/cadernos/ListaCadernosTela.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/login/TelaInicial.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/foto_cerebro.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_arrastar_e_soltar.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_cadernos.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_cadernos_azul.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_desempenho.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_desempenho_azul.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_inicio.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_inicio_azul.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_livro_caderno.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_oclusao_imagem.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_resposta_aberta.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_usuario.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_usuario_azul.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/retangulo.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/cadernos/CadernosTelas.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/cadernos/CadernosTelas2.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/login/LoginTela.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/login/LoginTela.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/registrar/RegistrarTela.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/registrar/RegistrarTela.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/navegacao/AppNavegacao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/navegacao/AppNavegacao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/navegacao/rotas_telas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/navegacao/rotas_telas.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_foreground.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_foreground.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/config/ConfigTela.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/memobrain/memonow/features/config/ConfigTela.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +78,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Merging feature/wiliene-config",
+    "git-widget-placeholder": "feature/wiliene-config",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/willi/classroom-mobile-final-mobile-project-ufc/MemoBrain"
   }
