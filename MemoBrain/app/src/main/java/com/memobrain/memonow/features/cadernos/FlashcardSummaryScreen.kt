@@ -1,12 +1,30 @@
 package com.memobrain.memonow.features.cadernos
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,172 +32,244 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.memobrain.memonow.R
 
 @Composable
 fun FlashcardSummaryScreen(viewModel: FlashcardSummaryViewModel) {
     val state by viewModel.state.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF7FAFC))
-            .padding(24.dp),
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
+    val corFundo = Color(0xFFF7FAFC)
+    val corProgresso = Color(0xFF55C6B9)
+    val corTitulo = Color(0xFF477A78)
+    val corBotao = Color(0xFF255980)
 
-        // Barra de Progresso no Topo (Totalmente preenchida)
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Text(state.questionNumber, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.width(8.dp))
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(corFundo)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(horizontal = 36.dp),
+    ) {
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = state.questionNumber,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF6C7889),
+            )
+
+            Spacer(modifier = Modifier.width(10.dp))
+
             LinearProgressIndicator(
                 progress = { state.progressPercentage },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(8.dp)
-                    .clip(CircleShape),
-                color = Color(0xFF4DB6AC),
-                trackColor = Color(0xFFE0F2F1)
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .height(8.dp)
+                        .clip(CircleShape),
+                color = corProgresso,
+                trackColor = Color(0xFFE1F1F0),
             )
         }
 
-        // Conteúdo Central (Ilustração e Mensagens)
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        /*
+         * Todo o conteúdo principal fica centralizado
+         * na área disponível abaixo da barra de progresso.
+         */
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            contentAlignment = Alignment.Center,
         ) {
-            // Placeholder para a Ilustração do Cérebro com Coroa
-            Box(
-                modifier = Modifier
-                    .size(140.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                // Aqui você usará o seu Image(painter = painterResource(id = ...))
-                // Representação textual temporária da ilustração:
-                Text("🧠👑", fontSize = 64.sp)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Mandou bem!",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2A5222)
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Lição concluída · +${state.xpEarned} XP",
-                fontSize = 14.sp,
-                color = Color(0xFF4DB6AC),
-                fontWeight = FontWeight.Medium,
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Grid de Estatísticas (Acertos e Tempo)
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // Card de Acertos
-                StatCard(
-                    modifier = Modifier.weight(1f),
-                    value = state.accuracyPercentage,
-                    label = "acertos",
-                    iconBackgroundColor = Color(0xFFE8F5E9),
+                Box(
+                    modifier =
+                        Modifier
+                            .size(170.dp)
+                            .offset(x = 15.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = null,
-                        tint = Color(0xFF2E7D32),
-                        modifier = Modifier.size(16.dp)
+                    Image(
+                        painter =
+                            painterResource(
+                                id = R.drawable.ic_finalizando_flashcard,
+                            ),
+                        contentDescription = "Lição concluída",
+                        modifier =
+                            Modifier
+                                .size(170.dp)
+                                .graphicsLayer(
+                                    scaleX = 2.8f,
+                                    scaleY = 2.8f,
+                                ),
+                        contentScale = ContentScale.Fit,
                     )
                 }
 
-                // Card de Tempo
-                StatCard(
-                    modifier = Modifier.weight(1f),
-                    value = state.timeSpent,
-                    label = "tempo",
-                    iconBackgroundColor = Color(0xFFE3F2FD),
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Mandou bem!",
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = corTitulo,
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Lição concluída",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = corProgresso,
+                )
+
+                Spacer(modifier = Modifier.height(26.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // Círculo simulando o ícone de relógio
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .background(Color(0xFF1565C0), shape = CircleShape),
+                    CartaoEstatistica(
+                        modifier = Modifier.weight(1f),
+                        valor = state.accuracyPercentage,
+                        legenda = "acertos",
+                        icone = R.drawable.ic_score,
+                        escalaIcone = 0.9f,
+                    )
+
+                    CartaoEstatistica(
+                        modifier = Modifier.weight(1f),
+                        valor = state.timeSpent,
+                        legenda = "tempo",
+                        icone = R.drawable.ic_time,
+                        escalaIcone = 3.2f,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.onEvent(
+                            FlashcardSummaryEvent.OnCloseClicked,
+                        )
+                    },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = corBotao,
+                        ),
+                    shape = RoundedCornerShape(24.dp),
+                ) {
+                    Text(
+                        text = "Fechar",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
         }
-
-        // Botão Fechar no Rodapé
-        Button(
-            onClick = { viewModel.onEvent(FlashcardSummaryEvent.OnCloseClicked) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E3A5F)), // Azul escuro padrão
-            shape = RoundedCornerShape(25.dp),
-        ) {
-            Text("Fechar", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
-fun StatCard(
+private fun CartaoEstatistica(
     modifier: Modifier = Modifier,
-    value: String,
-    label: String,
-    iconBackgroundColor: Color,
-    icon: @Composable () -> Unit,
+    valor: String,
+    legenda: String,
+    icone: Int,
+    escalaIcone: Float,
 ) {
     Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        modifier = modifier.height(72.dp),
+        shape = RoundedCornerShape(8.dp),
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color = Color(0xFFE3E9EF),
+            ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = Color.White,
+            ),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 0.dp,
+            ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(
+                        horizontal = 8.dp,
+                        vertical = 5.dp,
+                    ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .background(iconBackgroundColor, shape = CircleShape),
+                modifier = Modifier.size(17.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                icon()
+                Image(
+                    painter = painterResource(id = icone),
+                    contentDescription = null,
+                    modifier =
+                        Modifier
+                            .size(17.dp)
+                            .graphicsLayer(
+                                scaleX = escalaIcone,
+                                scaleY = escalaIcone,
+                            ),
+                    contentScale = ContentScale.Fit,
+                )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(3.dp))
+
             Text(
-                text = value,
-                fontSize = 18.sp,
+                text = valor,
+                fontSize = 12.sp,
+                lineHeight = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.DarkGray,
+                color = Color(0xFF344054),
                 textAlign = TextAlign.Center,
             )
+
+            Spacer(modifier = Modifier.height(1.dp))
+
             Text(
-                text = label,
-                fontSize = 12.sp,
-                color = Color.Gray,
+                text = legenda,
+                fontSize = 9.sp,
+                lineHeight = 10.sp,
+                color = Color(0xFF6C7A89),
                 textAlign = TextAlign.Center,
+                maxLines = 1,
             )
         }
     }
