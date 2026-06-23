@@ -1,59 +1,196 @@
 package com.memobrain.memonow.features.cadernos
 
 import androidx.lifecycle.ViewModel
+import com.memobrain.memonow.data.repository.repositorio.RepositorioConteudo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class CreateMultipleChoiceState(
-    val questionText: String = "",
-    val options: List<String> = listOf("", "", "", ""), // 4 alternativas em branco
-    val correctOptionIndex: Int? = null // Qual das 4 (0 a 3) é a verdadeira
-) {
-    // Validação simples para ativar o botão de salvar
-    val isValid: Boolean get() =
-        questionText.isNotBlank() &&
-                options.all { it.isNotBlank() } &&
-                correctOptionIndex != null
-}
+data class OpcaoUi(
+    val id: Long,
+    val texto: String = "",
+)
 
-sealed class CreateMultipleChoiceEvent {
-    data class OnQuestionChanged(val text: String) : CreateMultipleChoiceEvent()
-    data class OnOptionChanged(val index: Int, val text: String) : CreateMultipleChoiceEvent()
-    data class OnCorrectOptionSelected(val index: Int) : CreateMultipleChoiceEvent()
-    object OnSaveClicked : CreateMultipleChoiceEvent()
-    object OnCancelClicked : CreateMultipleChoiceEvent()
+data class CreateMultipleChoiceUiState(
+    val pergunta: String = "",
+    val opcoes: List<OpcaoUi> =
+        listOf(
+            OpcaoUi(id = 1),
+            OpcaoUi(id = 2),
+            OpcaoUi(id = 3),
+            OpcaoUi(id = 4),
+        ),
+    val indiceCorreto: Int? = null,
+    val isSalvando: Boolean = false,
+    val salvoComSucesso: Boolean = false,
+    val mensagemErro: String? = null,
+) {
+    val podeAdicionarOpcao: Boolean
+        get() = opcoes.size < 7
+
+    val podeRemoverOpcao: Boolean
+        get() = opcoes.size > 2
 }
 
 class CreateMultipleChoiceViewModel : ViewModel() {
-    private val _state = MutableStateFlow(CreateMultipleChoiceState())
-    val state: StateFlow<CreateMultipleChoiceState> = _state.asStateFlow()
+    private val repositorioConteudo = RepositorioConteudo()
 
-    fun onEvent(event: CreateMultipleChoiceEvent) {
-        when (event) {
-            is CreateMultipleChoiceEvent.OnQuestionChanged -> {
-                _state.update { it.copy(questionText = event.text) }
-            }
-            is CreateMultipleChoiceEvent.OnOptionChanged -> {
-                _state.update { currentState ->
-                    val newOptions = currentState.options.toMutableList()
-                    newOptions[event.index] = event.text
-                    currentState.copy(options = newOptions)
+    private val _uiState = MutableStateFlow(CreateMultipleChoiceUiState())
+    val uiState: StateFlow<CreateMultipleChoiceUiState> = _uiState.asStateFlow()
+
+    fun onPerguntaChange(valor: String) {
+        _uiState.update {
+            it.copy(
+                pergunta = valor,
+                mensagemErro = null,
+            )
+        }
+    }
+
+    fun onOpcaoChange(
+        indice: Int,
+        valor: String,
+    ) {
+        _uiState.update { state ->
+            val novaLista = state.opcoes.toMutableList()
+            novaLista[indice] = novaLista[indice].copy(texto = valor)
+            state.copy(
+                opcoes = novaLista,
+                mensagemErro = null,
+            )
+        }
+    }
+
+    fun selecionarCorreta(indice: Int) {
+        _uiState.update {
+            it.copy(
+                indiceCorreto = indice,
+                mensagemErro = null,
+            )
+        }
+    }
+
+    fun adicionarOpcao() {
+        _uiState.update { state ->
+            if (state.opcoes.size >= 7) return@update state
+
+            val proximoId = (state.opcoes.maxOfOrNull { it.id } ?: 0L) + 1L
+            state.copy(
+                opcoes = state.opcoes + OpcaoUi(id = proximoId),
+            )
+        }
+    }
+
+    fun removerOpcao(indice: Int) {
+        _uiState.update { state ->
+            if (state.opcoes.size <= 2) return@update state
+
+            val novaLista = state.opcoes.toMutableList()
+            novaLista.removeAt(indice)
+
+            val novoIndiceCorreto =
+                when {
+                    state.indiceCorreto == null -> null
+                    state.indiceCorreto == indice -> null
+                    state.indiceCorreto > indice -> state.indiceCorreto - 1
+                    else -> state.indiceCorreto
                 }
+
+            state.copy(
+                opcoes = novaLista,
+                indiceCorreto = novoIndiceCorreto,
+                mensagemErro = null,
+            )
+        }
+    }
+
+    fun salvarQuestao(
+        cadernoId: String,
+        arquivoId: String,
+    ) {
+        val state = _uiState.value
+
+        if (state.isSalvando) return
+
+        val pergunta = state.pergunta.trim()
+        if (pergunta.isBlank()) {
+            _uiState.update {
+                it.copy(mensagemErro = "Digite a pergunta.")
             }
-            is CreateMultipleChoiceEvent.OnCorrectOptionSelected -> {
-                _state.update { it.copy(correctOptionIndex = event.index) }
-            }
-            is CreateMultipleChoiceEvent.OnSaveClicked -> {
-                if (_state.value.isValid) {
-                    println("Múltipla Escolha salva: ${_state.value}")
-                    // Lógica para salvar no banco
+            return
+        }
+
+        val opcoesPreenchidas =
+            state.opcoes
+                .mapIndexedNotNull { indice, opcao ->
+                    if (opcao.texto.trim().isNotBlank()) {
+                        indice to opcao.texto.trim()
+                    } else {
+                        null
+                    }
                 }
+
+        if (opcoesPreenchidas.size < 2) {
+            _uiState.update {
+                it.copy(mensagemErro = "Preencha pelo menos 2 alternativas.")
             }
-            is CreateMultipleChoiceEvent.OnCancelClicked -> {
-                // Fechar tela
+            return
+        }
+
+        val indiceCorretoOriginal = state.indiceCorreto
+        if (indiceCorretoOriginal == null) {
+            _uiState.update {
+                it.copy(mensagemErro = "Selecione a alternativa correta.")
             }
+            return
+        }
+
+        val novaListaAlternativas = opcoesPreenchidas.map { it.second }
+        val novoIndiceCorreto = opcoesPreenchidas.indexOfFirst { it.first == indiceCorretoOriginal }
+
+        if (novoIndiceCorreto < 0) {
+            _uiState.update {
+                it.copy(mensagemErro = "A alternativa correta precisa estar preenchida.")
+            }
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                isSalvando = true,
+                mensagemErro = null,
+            )
+        }
+
+        repositorioConteudo.criarMultiplaEscolha(
+            cadernoId = cadernoId,
+            arquivoId = arquivoId,
+            pergunta = pergunta,
+            alternativas = novaListaAlternativas,
+            indiceCorreto = novoIndiceCorreto,
+            aoSucesso = {
+                _uiState.update {
+                    it.copy(
+                        isSalvando = false,
+                        salvoComSucesso = true,
+                    )
+                }
+            },
+            aoErro = { erro ->
+                _uiState.update {
+                    it.copy(
+                        isSalvando = false,
+                        mensagemErro = erro,
+                    )
+                }
+            },
+        )
+    }
+
+    fun consumirSucesso() {
+        _uiState.update {
+            it.copy(salvoComSucesso = false)
         }
     }
 }
