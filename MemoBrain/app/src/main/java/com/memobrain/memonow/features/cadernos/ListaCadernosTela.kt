@@ -1,4 +1,3 @@
-
 package com.memobrain.memonow.features.cadernos
 
 import androidx.compose.foundation.Image
@@ -27,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -45,13 +46,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.memobrain.memonow.R
 
 data class Caderno(
     val id: String = "",
     val titulo: String = "",
+    val descricao: String = "",
     val revisados: Int = 0,
     val restantes: Int = 0,
 )
@@ -61,16 +65,12 @@ data class Caderno(
 fun ListaCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaInicio: () -> Unit = {},
+    onCadernoClick: (Caderno) -> Unit = {},
+    onEditarClick: (String) -> Unit = {},
+    onNovoCadernoClick: () -> Unit = {},
+    viewModel: CadernosViewModel = viewModel(),
 ) {
-    val listaCadernos =
-        remember {
-            listOf(
-                Caderno("1", "Ciência de Dados", 6, 14),
-                Caderno("2", "Direito Constitucional", 7, 20),
-                Caderno("3", "Direito Processual Penal", 15, 48),
-            )
-        }
-
+    val uiState by viewModel.uiState.collectAsState()
     var tabSelecionada by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -85,19 +85,17 @@ fun ListaCadernosTela(
                         color = Color(0xFF1A2536),
                     )
                 },
-                colors =
-                    TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFFF6F8FB),
-                    ),
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFF6F8FB),
+                ),
             )
         },
         bottomBar = {
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.CADERNOS,
                 onAbaClick = { aba ->
-                    when (aba) {
-                        AbaMenu.INICIO -> onIrParaInicio()
-                        else -> {}
+                    if (aba == AbaMenu.INICIO) {
+                        onIrParaInicio()
                     }
                 },
             )
@@ -105,43 +103,99 @@ fun ListaCadernosTela(
         containerColor = Color(0xFFF6F8FB),
     ) { paddingValues ->
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
         ) {
             TabSelector(
                 selecionado = tabSelecionada,
-                quantidadeMeus = listaCadernos.size,
-                onTabSelected = { novaTab ->
-                    tabSelecionada = novaTab
-                },
+                quantidadeMeus = uiState.listaCadernos.size,
+                onTabSelected = { tabSelecionada = it },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 16.dp),
-            ) {
-                items(listaCadernos) { caderno ->
-                    CardCaderno(caderno = caderno)
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color(0xFF22496E),
+                        )
+                    }
+                }
+
+                uiState.mensagemErro != null -> {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = uiState.mensagemErro.orEmpty(),
+                            color = Color(0xFFD32F2F),
+                            fontSize = 14.sp,
+                        )
+                    }
+                }
+
+                uiState.listaCadernos.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Nenhum caderno cadastrado.",
+                            color = Color(0xFF718096),
+                            fontSize = 14.sp,
+                        )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 24.dp),
+                    ) {
+                        items(
+                            items = uiState.listaCadernos,
+                            key = { it.id },
+                        ) { caderno ->
+                            CardCaderno(
+                                caderno = caderno,
+                                onClick = {
+                                    onCadernoClick(caderno)
+                                },
+                                onEditarClick = {
+                                    onEditarClick(caderno.id)
+                                },
+                            )
+                        }
+                    }
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-                onClick = { },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(bottom = 8.dp),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF22496E),
-                    ),
+                onClick = onNovoCadernoClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF22496E),
+                ),
                 shape = RoundedCornerShape(28.dp),
             ) {
                 Text(
@@ -151,6 +205,8 @@ fun ListaCadernosTela(
                     letterSpacing = 1.sp,
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -162,53 +218,67 @@ fun TabSelector(
     onTabSelected: (Int) -> Unit,
 ) {
     Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(Color(0xFFF1F3F5), RoundedCornerShape(24.dp))
-                .padding(4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(
+                color = Color(0xFFF1F3F5),
+                shape = RoundedCornerShape(24.dp),
+            )
+            .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val abas = listOf("Meus ($quantidadeMeus)", "Públicos")
+        listOf("Meus ($quantidadeMeus)", "Públicos")
+            .forEachIndexed { index, texto ->
+                val estaSelecionada = selecionado == index
 
-        abas.forEachIndexed { index, texto ->
-            val selecionadoAgora = selecionado == index
-
-            Button(
-                onClick = { onTabSelected(index) },
-                modifier =
-                    Modifier
+                Button(
+                    onClick = { onTabSelected(index) },
+                    modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = if (selecionadoAgora) Color.White else Color.Transparent,
-                        contentColor = if (selecionadoAgora) Color(0xFF1A2536) else Color(0xFF6C757D),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (estaSelecionada) {
+                            Color.White
+                        } else {
+                            Color.Transparent
+                        },
+                        contentColor = if (estaSelecionada) {
+                            Color(0xFF1A2536)
+                        } else {
+                            Color(0xFF6C757D)
+                        },
                     ),
-                shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Text(
-                    text = texto,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                )
+                    shape = RoundedCornerShape(20.dp),
+                    contentPadding = PaddingValues(0.dp),
+                ) {
+                    Text(
+                        text = texto,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
             }
-        }
     }
 }
 
 @Composable
-fun CardCaderno(caderno: Caderno) {
+fun CardCaderno(
+    caderno: Caderno,
+    onClick: () -> Unit = {},
+    onEditarClick: () -> Unit = {},
+) {
     Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable { },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp,
+        ),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -218,14 +288,18 @@ fun CardCaderno(caderno: Caderno) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    modifier =
-                        Modifier
-                            .size(48.dp)
-                            .background(Color(0xFFE6F4F1), RoundedCornerShape(12.dp)),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            color = Color(0xFFE6F4F1),
+                            shape = RoundedCornerShape(12.dp),
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Image(
-                        painter = painterResource(id = com.memobrain.memonow.R.drawable.ic_livro_caderno),
+                        painter = painterResource(
+                            id = R.drawable.ic_livro_caderno,
+                        ),
                         contentDescription = "Caderno",
                         modifier = Modifier.size(22.dp),
                     )
@@ -233,24 +307,33 @@ fun CardCaderno(caderno: Caderno) {
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                ) {
                     Text(
                         text = caderno.titulo,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1A2536),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
+
                     Text(
-                        text = "Clique para abrir",
+                        text = caderno.descricao.ifBlank {
+                            "Sem descrição"
+                        },
                         fontSize = 12.sp,
                         color = Color(0xFF9EA8B6),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
 
-                IconButton(onClick = { }) {
+                IconButton(onClick = onEditarClick) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar",
+                        contentDescription = "Editar caderno",
                         tint = Color(0xFF9EA8B6),
                         modifier = Modifier.size(20.dp),
                     )
@@ -268,6 +351,7 @@ fun CardCaderno(caderno: Caderno) {
                     fontSize = 11.sp,
                     color = Color(0xFF6C757D),
                 )
+
                 Text(
                     text = "${caderno.restantes} restantes",
                     fontSize = 11.sp,
@@ -277,25 +361,25 @@ fun CardCaderno(caderno: Caderno) {
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            val total = (caderno.revisados + caderno.restantes).toFloat()
-            val progresso = if (total > 0) caderno.revisados / total else 0f
+            val total = (
+                    caderno.revisados + caderno.restantes
+                    ).toFloat()
+
+            val progresso = if (total > 0f) {
+                caderno.revisados / total
+            } else {
+                0f
+            }
 
             LinearProgressIndicator(
                 progress = { progresso },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp),
                 color = Color(0xFF4FA393),
                 trackColor = Color(0xFFE9ECEF),
                 strokeCap = StrokeCap.Round,
             )
         }
     }
-}
-
-@Preview(showBackground = true, heightDp = 700)
-@Composable
-fun ListaCadernosTelaPreview() {
-    ListaCadernosTela()
 }

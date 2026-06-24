@@ -6,29 +6,90 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.data.local.datastore.ArmazenamentoSessao
 import com.memobrain.memonow.data.remote.autenticacao.ServicoLoginFirebase
+import com.memobrain.memonow.features.cadernos.CreateFlashcardScreen
+import com.memobrain.memonow.features.cadernos.CreateFlashcardViewModel
+import com.memobrain.memonow.features.cadernos.CreateMultipleChoiceScreen
+import com.memobrain.memonow.features.cadernos.CreateMultipleChoiceViewModel
+import com.memobrain.memonow.features.cadernos.CriarArquivoScreen
+import com.memobrain.memonow.features.cadernos.CriarCadernoScreen
 import com.memobrain.memonow.features.cadernos.DashboardCadernosTela
+import com.memobrain.memonow.features.cadernos.DetalheCadernoScreen
+import com.memobrain.memonow.features.cadernos.EditArquivoScreen
+import com.memobrain.memonow.features.cadernos.EditArquivoViewModel
+import com.memobrain.memonow.features.cadernos.EditNotebookScreen
+import com.memobrain.memonow.features.cadernos.EditNotebookViewModel
+import com.memobrain.memonow.features.cadernos.FlashcardSummaryScreen
+import com.memobrain.memonow.features.cadernos.FlashcardSummaryViewModel
 import com.memobrain.memonow.features.cadernos.ListaCadernosTela
+import com.memobrain.memonow.features.cadernos.RevisarArquivoScreen
+import com.memobrain.memonow.features.cadernos.RevisarArquivoViewModel
 import com.memobrain.memonow.features.login.LoginTela
 import com.memobrain.memonow.features.login.TelaInicial
 import com.memobrain.memonow.features.registrar.RegistrarTela
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-import com.memobrain.memonow.features.perfil.ConfigTela
+import java.util.Locale
+
 @Composable
 fun AppNavegacao() {
-    var telaAtual by remember { mutableStateOf(RotasTelas.INICIAL) }
+    var telaAtual by remember {
+        mutableStateOf(RotasTelas.INICIAL)
+    }
+
+    var rotaRetornoAoCancelarCriacaoConteudo by remember {
+        mutableStateOf(RotasTelas.DETALHE_CADERNO)
+    }
+
+    var idCadernoSelecionado by remember {
+        mutableStateOf("")
+    }
+
+    var nomeCadernoSelecionado by remember {
+        mutableStateOf("")
+    }
+
+    var idArquivoSelecionado by remember {
+        mutableStateOf("")
+    }
+
+    var tituloArquivoSelecionado by remember {
+        mutableStateOf("")
+    }
+
+    var descricaoArquivoSelecionado by remember {
+        mutableStateOf("")
+    }
+
+    var acertosSummary by remember { mutableIntStateOf(0) }
+    var totalQuestoesSummary by remember { mutableIntStateOf(0) }
+    var tempoSummary by remember { mutableLongStateOf(0L) }
+
     val context = LocalContext.current
-    val armazenamentoSessao = remember { ArmazenamentoSessao(context) }
-    var verificandoSessao by remember { mutableStateOf(true) }
-    val servicoLogin = remember { ServicoLoginFirebase() }
+
+    val armazenamentoSessao =
+        remember {
+            ArmazenamentoSessao(context)
+        }
+
+    val servicoLogin =
+        remember {
+            ServicoLoginFirebase()
+        }
+
+    var verificandoSessao by remember {
+        mutableStateOf(true)
+    }
 
     LaunchedEffect(Unit) {
         val usuarioFirebase = servicoLogin.obterUsuarioAtual()
@@ -55,51 +116,246 @@ fun AppNavegacao() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            Text("Carregando...")
+            Text(text = "Carregando...")
         }
-    } else {
-        when (telaAtual) {
-            RotasTelas.INICIAL -> {
-                TelaInicial(
-                    entrar = { telaAtual = RotasTelas.LOGIN },
-                    registrar = { telaAtual = RotasTelas.REGISTRAR },
-                )
-            }
 
-            RotasTelas.LOGIN -> {
-                LoginTela(
-                    registrar = { telaAtual = RotasTelas.REGISTRAR },
-                    onLoginSucesso = { telaAtual = RotasTelas.INICIO_APP },
-                )
-            }
+        return
+    }
 
-            RotasTelas.REGISTRAR -> {
-                RegistrarTela(
-                    onCadastroSucesso = { telaAtual = RotasTelas.INICIO_APP },
-                    onIrParaLogin = { telaAtual = RotasTelas.LOGIN },
-                )
-            }
+    when (telaAtual) {
+        RotasTelas.INICIAL -> {
+            TelaInicial(
+                entrar = {
+                    telaAtual = RotasTelas.LOGIN
+                },
+                registrar = {
+                    telaAtual = RotasTelas.REGISTRAR
+                },
+            )
+        }
 
-            RotasTelas.INICIO_APP -> {
-                DashboardCadernosTela(
-                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS },
-                    onIrParaPerfil = { telaAtual = RotasTelas.PERFIL }
-                )
-            }
+        RotasTelas.LOGIN -> {
+            LoginTela(
+                registrar = {
+                    telaAtual = RotasTelas.REGISTRAR
+                },
+                onLoginSucesso = {
+                    telaAtual = RotasTelas.INICIO_APP
+                },
+            )
+        }
 
+        RotasTelas.REGISTRAR -> {
+            RegistrarTela(
+                onCadastroSucesso = {
+                    telaAtual = RotasTelas.INICIO_APP
+                },
+                onIrParaLogin = {
+                    telaAtual = RotasTelas.LOGIN
+                },
+            )
+        }
 
-            RotasTelas.PERFIL -> {
-                ConfigTela(
-                    onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
-                    onIrParaCadernos = { telaAtual = RotasTelas.CADERNOS }
-                )
-            }
+        RotasTelas.HOME,
+        RotasTelas.INICIO_APP,
+        -> {
+            DashboardCadernosTela(
+                onIrParaCadernos = {
+                    telaAtual = RotasTelas.CADERNOS
+                },
+            )
+        }
 
-            RotasTelas.CADERNOS -> {
-                ListaCadernosTela(
-                    onIrParaInicio = { telaAtual = RotasTelas.INICIO_APP },
-                )
-            }
+        RotasTelas.CADERNOS -> {
+            ListaCadernosTela(
+                onIrParaInicio = {
+                    telaAtual = RotasTelas.INICIO_APP
+                },
+                onCadernoClick = { caderno ->
+                    idCadernoSelecionado = caderno.id
+                    nomeCadernoSelecionado = caderno.titulo
+                    telaAtual = RotasTelas.DETALHE_CADERNO
+                },
+                onEditarClick = { cadernoId ->
+                    idCadernoSelecionado = cadernoId
+                    telaAtual = RotasTelas.EDITAR_CADERNO
+                },
+                onNovoCadernoClick = {
+                    telaAtual = RotasTelas.CRIAR_CADERNO
+                },
+            )
+        }
+
+        RotasTelas.DETALHE_CADERNO -> {
+            DetalheCadernoScreen(
+                cadernoId = idCadernoSelecionado,
+                nomeCaderno = nomeCadernoSelecionado,
+                onBackClick = {
+                    telaAtual = RotasTelas.CADERNOS
+                },
+                onNovoArquivoClick = {
+                    telaAtual = RotasTelas.CRIAR_ARQUIVO
+                },
+                onTopicoClick = { arquivo ->
+                    idArquivoSelecionado = arquivo.id
+                    tituloArquivoSelecionado = arquivo.titulo
+                    descricaoArquivoSelecionado = arquivo.descricao
+
+                    telaAtual = RotasTelas.REVISAR_ARQUIVO
+                },
+                onEditarArquivoClick = { arquivoId ->
+                    idArquivoSelecionado = arquivoId
+                    telaAtual = RotasTelas.EDITAR_ARQUIVO
+                },
+            )
+        }
+
+        RotasTelas.EDITAR_CADERNO -> {
+            val editViewModel: EditNotebookViewModel = viewModel()
+
+            EditNotebookScreen(
+                cadernoId = idCadernoSelecionado,
+                viewModel = editViewModel,
+                onNavigateBack = {
+                    telaAtual = RotasTelas.CADERNOS
+                },
+            )
+        }
+
+        RotasTelas.EDITAR_ARQUIVO -> {
+            val editArquivoViewModel: EditArquivoViewModel = viewModel()
+
+            EditArquivoScreen(
+                cadernoId = idCadernoSelecionado,
+                arquivoId = idArquivoSelecionado,
+                viewModel = editArquivoViewModel,
+                onNavigateBack = {
+                    telaAtual = RotasTelas.DETALHE_CADERNO
+                },
+            )
+        }
+
+        RotasTelas.CRIAR_CADERNO -> {
+            CriarCadernoScreen(
+                onBackClick = {
+                    telaAtual = RotasTelas.CADERNOS
+                },
+            )
+        }
+
+        RotasTelas.CRIAR_ARQUIVO -> {
+            CriarArquivoScreen(
+                cadernoId = idCadernoSelecionado,
+                onBackClick = {
+                    telaAtual = RotasTelas.DETALHE_CADERNO
+                },
+                onArquivoCriado = { arquivo ->
+                    idArquivoSelecionado = arquivo.id
+                    tituloArquivoSelecionado = arquivo.titulo
+                    descricaoArquivoSelecionado = arquivo.descricao
+
+                    rotaRetornoAoCancelarCriacaoConteudo =
+                        RotasTelas.DETALHE_CADERNO
+
+                    telaAtual =
+                        when (arquivo.metodo) {
+                            "Múltipla Escolha" -> {
+                                RotasTelas.CRIAR_MULTIPLA_ESCOLHA
+                            }
+
+                            else -> {
+                                RotasTelas.CRIAR_PERGUNTA_ABERTA
+                            }
+                        }
+                },
+            )
+        }
+
+        RotasTelas.CRIAR_PERGUNTA_ABERTA -> {
+            val perguntaAbertaViewModel: CreateFlashcardViewModel =
+                viewModel()
+
+            CreateFlashcardScreen(
+                cadernoId = idCadernoSelecionado,
+                arquivoId = idArquivoSelecionado,
+                viewModel = perguntaAbertaViewModel,
+                onNavigateBack = {
+                    telaAtual = rotaRetornoAoCancelarCriacaoConteudo
+                },
+            )
+        }
+
+        RotasTelas.CRIAR_MULTIPLA_ESCOLHA -> {
+            val multiplaEscolhaViewModel: CreateMultipleChoiceViewModel =
+                viewModel()
+
+            CreateMultipleChoiceScreen(
+                cadernoId = idCadernoSelecionado,
+                arquivoId = idArquivoSelecionado,
+                viewModel = multiplaEscolhaViewModel,
+                onNavigateBack = {
+                    telaAtual = rotaRetornoAoCancelarCriacaoConteudo
+                },
+            )
+        }
+
+        RotasTelas.REVISAR_ARQUIVO -> {
+            val revisarArquivoViewModel: RevisarArquivoViewModel =
+                viewModel()
+
+            RevisarArquivoScreen(
+                cadernoId = idCadernoSelecionado,
+                cadernoTitulo = nomeCadernoSelecionado,
+                arquivoId = idArquivoSelecionado,
+                tituloArquivo = tituloArquivoSelecionado,
+                descricaoArquivo = descricaoArquivoSelecionado,
+                viewModel = revisarArquivoViewModel,
+                onFecharClick = {
+                    telaAtual = RotasTelas.DETALHE_CADERNO
+                },
+                onAdicionarPerguntaAbertaClick = {
+                    rotaRetornoAoCancelarCriacaoConteudo =
+                        RotasTelas.REVISAR_ARQUIVO
+
+                    telaAtual = RotasTelas.CRIAR_PERGUNTA_ABERTA
+                },
+                onAdicionarMultiplaEscolhaClick = {
+                    rotaRetornoAoCancelarCriacaoConteudo =
+                        RotasTelas.REVISAR_ARQUIVO
+
+                    telaAtual = RotasTelas.CRIAR_MULTIPLA_ESCOLHA
+                },
+                onFinalizado = { acertos, total, tempo ->
+                    acertosSummary = acertos
+                    totalQuestoesSummary = total
+                    tempoSummary = tempo
+                    telaAtual = RotasTelas.FLASHCARD_SUMMARY
+                }
+            )
+        }
+
+        RotasTelas.FLASHCARD_SUMMARY -> {
+            val summaryViewModel: FlashcardSummaryViewModel = viewModel()
+            val porcentagem = if (totalQuestoesSummary > 0) {
+                (acertosSummary * 100) / totalQuestoesSummary
+            } else 0
+
+            val segundosTotais = tempoSummary / 1000
+            val minutos = segundosTotais / 60
+            val segundos = segundosTotais % 60
+            val tempoFormatado = String.format(Locale.getDefault(), "%d:%02d", minutos, segundos)
+
+            summaryViewModel.setup(
+                accuracy = "$porcentagem%",
+                time = tempoFormatado,
+                xp = acertosSummary * 10,
+                totalQuestions = totalQuestoesSummary,
+                onNavigateBack = {
+                    telaAtual = RotasTelas.DETALHE_CADERNO
+                }
+            )
+
+            FlashcardSummaryScreen(viewModel = summaryViewModel)
         }
     }
 }
