@@ -1,6 +1,7 @@
 package com.memobrain.memonow.data.remote.firestore
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,20 +34,6 @@ class FonteDadosFirestoreConteudo {
         aoSucesso: () -> Unit,
         aoErro: (String) -> Unit,
     ) {
-        if (!validarIds(cadernoId, arquivoId, aoErro)) return
-
-        val referenciaArquivo =
-            banco
-                .collection("cadernos")
-                .document(cadernoId)
-                .collection("arquivos")
-                .document(arquivoId)
-
-        val referenciaConteudo =
-            referenciaArquivo
-                .collection("conteudos")
-                .document()
-
         val dados =
             hashMapOf<String, Any>(
                 "tipo" to TipoConteudo.FLASHCARD,
@@ -54,32 +41,18 @@ class FonteDadosFirestoreConteudo {
                 "resposta" to resposta.trim(),
                 "alternativas" to emptyList<String>(),
                 "indiceCorreto" to -1,
+                "revisado" to false,
                 "criadoEm" to FieldValue.serverTimestamp(),
                 "atualizadoEm" to FieldValue.serverTimestamp(),
             )
 
-        val lote = banco.batch()
-
-        lote.set(referenciaConteudo, dados)
-
-        lote.update(
-            referenciaArquivo,
-            mapOf(
-                "quantidadeItens" to FieldValue.increment(1),
-                "atualizadoEm" to FieldValue.serverTimestamp(),
-            ),
+        salvarConteudo(
+            cadernoId = cadernoId,
+            arquivoId = arquivoId,
+            dados = dados,
+            aoSucesso = aoSucesso,
+            aoErro = aoErro,
         )
-
-        lote
-            .commit()
-            .addOnSuccessListener {
-                aoSucesso()
-            }.addOnFailureListener { exception ->
-                aoErro(
-                    exception.message
-                        ?: "Não foi possível salvar o flashcard.",
-                )
-            }
     }
 
     fun criarMultiplaEscolha(
@@ -91,20 +64,6 @@ class FonteDadosFirestoreConteudo {
         aoSucesso: () -> Unit,
         aoErro: (String) -> Unit,
     ) {
-        if (!validarIds(cadernoId, arquivoId, aoErro)) return
-
-        val referenciaArquivo =
-            banco
-                .collection("cadernos")
-                .document(cadernoId)
-                .collection("arquivos")
-                .document(arquivoId)
-
-        val referenciaConteudo =
-            referenciaArquivo
-                .collection("conteudos")
-                .document()
-
         val dados =
             hashMapOf<String, Any>(
                 "tipo" to TipoConteudo.MULTIPLA_ESCOLHA,
@@ -112,9 +71,39 @@ class FonteDadosFirestoreConteudo {
                 "resposta" to "",
                 "alternativas" to alternativas.map { it.trim() },
                 "indiceCorreto" to indiceCorreto,
+                "revisado" to false,
                 "criadoEm" to FieldValue.serverTimestamp(),
                 "atualizadoEm" to FieldValue.serverTimestamp(),
             )
+
+        salvarConteudo(
+            cadernoId = cadernoId,
+            arquivoId = arquivoId,
+            dados = dados,
+            aoSucesso = aoSucesso,
+            aoErro = aoErro,
+        )
+    }
+
+    private fun salvarConteudo(
+        cadernoId: String,
+        arquivoId: String,
+        dados: HashMap<String, Any>,
+        aoSucesso: () -> Unit,
+        aoErro: (String) -> Unit,
+    ) {
+        if (!validarIds(cadernoId, arquivoId, aoErro)) return
+
+        val referenciaArquivo =
+            referenciaArquivo(
+                cadernoId = cadernoId,
+                arquivoId = arquivoId,
+            )
+
+        val referenciaConteudo =
+            referenciaArquivo
+                .collection("conteudos")
+                .document()
 
         val lote = banco.batch()
 
@@ -123,7 +112,6 @@ class FonteDadosFirestoreConteudo {
         lote.update(
             referenciaArquivo,
             mapOf(
-                "quantidadeItens" to FieldValue.increment(1),
                 "atualizadoEm" to FieldValue.serverTimestamp(),
             ),
         )
@@ -131,11 +119,15 @@ class FonteDadosFirestoreConteudo {
         lote
             .commit()
             .addOnSuccessListener {
-                aoSucesso()
+                sincronizarProgressoDoCaderno(
+                    cadernoId = cadernoId,
+                    aoSucesso = aoSucesso,
+                    aoErro = aoErro,
+                )
             }.addOnFailureListener { exception ->
                 aoErro(
                     exception.message
-                        ?: "Não foi possível salvar a questão.",
+                        ?: "Não foi possível salvar o conteúdo.",
                 )
             }
     }
@@ -148,12 +140,10 @@ class FonteDadosFirestoreConteudo {
     ): ListenerRegistration? {
         if (!validarIds(cadernoId, arquivoId, aoErro)) return null
 
-        return banco
-            .collection("cadernos")
-            .document(cadernoId)
-            .collection("arquivos")
-            .document(arquivoId)
-            .collection("conteudos")
+        return referenciaArquivo(
+            cadernoId = cadernoId,
+            arquivoId = arquivoId,
+        ).collection("conteudos")
             .orderBy("criadoEm", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
@@ -165,11 +155,78 @@ class FonteDadosFirestoreConteudo {
                 }
 
                 val conteudos =
-                    snapshot?.documents.orEmpty().map {
-                        documentoParaConteudo(it)
-                    }
+                    snapshot
+                        ?.documents
+                        .orEmpty()
+                        .map { documento ->
+                            documentoParaConteudo(documento)
+                        }
 
                 aoAtualizar(conteudos)
+            }
+    }
+
+    fun concluirRevisao(
+        cadernoId: String,
+        arquivoId: String,
+        conteudoIds: List<String>,
+        aoSucesso: () -> Unit,
+        aoErro: (String) -> Unit,
+    ) {
+        if (!validarIds(cadernoId, arquivoId, aoErro)) return
+
+        val idsValidos =
+            conteudoIds
+                .filter { it.isNotBlank() }
+                .distinct()
+
+        if (idsValidos.isEmpty()) {
+            aoSucesso()
+            return
+        }
+
+        if (idsValidos.size > 450) {
+            aoErro("Há conteúdos demais para concluir nesta revisão.")
+            return
+        }
+
+        val referenciaArquivo =
+            referenciaArquivo(
+                cadernoId = cadernoId,
+                arquivoId = arquivoId,
+            )
+
+        val lote = banco.batch()
+
+        idsValidos.forEach { conteudoId ->
+            val referenciaConteudo =
+                referenciaArquivo
+                    .collection("conteudos")
+                    .document(conteudoId)
+
+            lote.update(
+                referenciaConteudo,
+                mapOf(
+                    "revisado" to true,
+                    "revisadoEm" to FieldValue.serverTimestamp(),
+                    "atualizadoEm" to FieldValue.serverTimestamp(),
+                ),
+            )
+        }
+
+        lote
+            .commit()
+            .addOnSuccessListener {
+                sincronizarProgressoDoCaderno(
+                    cadernoId = cadernoId,
+                    aoSucesso = aoSucesso,
+                    aoErro = aoErro,
+                )
+            }.addOnFailureListener { exception ->
+                aoErro(
+                    exception.message
+                        ?: "Não foi possível concluir a revisão.",
+                )
             }
     }
 
@@ -187,26 +244,153 @@ class FonteDadosFirestoreConteudo {
             return
         }
 
-        val referenciaArquivo =
+        referenciaArquivo(
+            cadernoId = cadernoId,
+            arquivoId = arquivoId,
+        ).collection("conteudos")
+            .document(conteudoId)
+            .delete()
+            .addOnSuccessListener {
+                sincronizarProgressoDoCaderno(
+                    cadernoId = cadernoId,
+                    aoSucesso = aoSucesso,
+                    aoErro = aoErro,
+                )
+            }.addOnFailureListener { exception ->
+                aoErro(
+                    exception.message
+                        ?: "Não foi possível excluir o conteúdo.",
+                )
+            }
+    }
+
+    private fun sincronizarProgressoDoCaderno(
+        cadernoId: String,
+        aoSucesso: () -> Unit,
+        aoErro: (String) -> Unit,
+    ) {
+        val referenciaCaderno =
             banco
                 .collection("cadernos")
                 .document(cadernoId)
-                .collection("arquivos")
-                .document(arquivoId)
 
-        val referenciaConteudo =
-            referenciaArquivo
-                .collection("conteudos")
-                .document(conteudoId)
+        referenciaCaderno
+            .collection("arquivos")
+            .get()
+            .addOnSuccessListener { arquivosSnapshot ->
+                val arquivos = arquivosSnapshot.documents
+
+                if (arquivos.isEmpty()) {
+                    atualizarContadores(
+                        referenciaCaderno = referenciaCaderno,
+                        arquivos = emptyList(),
+                        conteudosPorArquivo = emptyList(),
+                        aoSucesso = aoSucesso,
+                        aoErro = aoErro,
+                    )
+                    return@addOnSuccessListener
+                }
+
+                buscarConteudosDosArquivos(
+                    referenciaCaderno = referenciaCaderno,
+                    arquivos = arquivos,
+                    indiceArquivo = 0,
+                    conteudosPorArquivo = mutableListOf(),
+                    aoSucesso = aoSucesso,
+                    aoErro = aoErro,
+                )
+            }.addOnFailureListener { exception ->
+                aoErro(
+                    exception.message
+                        ?: "Não foi possível atualizar o progresso.",
+                )
+            }
+    }
+
+    private fun buscarConteudosDosArquivos(
+        referenciaCaderno: DocumentReference,
+        arquivos: List<DocumentSnapshot>,
+        indiceArquivo: Int,
+        conteudosPorArquivo: MutableList<List<DocumentSnapshot>>,
+        aoSucesso: () -> Unit,
+        aoErro: (String) -> Unit,
+    ) {
+        if (indiceArquivo >= arquivos.size) {
+            atualizarContadores(
+                referenciaCaderno = referenciaCaderno,
+                arquivos = arquivos,
+                conteudosPorArquivo = conteudosPorArquivo,
+                aoSucesso = aoSucesso,
+                aoErro = aoErro,
+            )
+            return
+        }
+
+        arquivos[indiceArquivo]
+            .reference
+            .collection("conteudos")
+            .get()
+            .addOnSuccessListener { conteudosSnapshot ->
+                conteudosPorArquivo.add(conteudosSnapshot.documents)
+
+                buscarConteudosDosArquivos(
+                    referenciaCaderno = referenciaCaderno,
+                    arquivos = arquivos,
+                    indiceArquivo = indiceArquivo + 1,
+                    conteudosPorArquivo = conteudosPorArquivo,
+                    aoSucesso = aoSucesso,
+                    aoErro = aoErro,
+                )
+            }.addOnFailureListener { exception ->
+                aoErro(
+                    exception.message
+                        ?: "Não foi possível atualizar o progresso.",
+                )
+            }
+    }
+
+    private fun atualizarContadores(
+        referenciaCaderno: DocumentReference,
+        arquivos: List<DocumentSnapshot>,
+        conteudosPorArquivo: List<List<DocumentSnapshot>>,
+        aoSucesso: () -> Unit,
+        aoErro: (String) -> Unit,
+    ) {
+        val totalItens =
+            conteudosPorArquivo.sumOf { conteudos ->
+                conteudos.size
+            }
+
+        val totalRevisados =
+            conteudosPorArquivo.sumOf { conteudos ->
+                conteudos.count { conteudo ->
+                    conteudo.getBoolean("revisado") == true
+                }
+            }
 
         val lote = banco.batch()
 
-        lote.delete(referenciaConteudo)
+        arquivos.forEachIndexed { indice, arquivo ->
+            val quantidadeItens =
+                conteudosPorArquivo
+                    .getOrNull(indice)
+                    ?.size
+                    ?: 0
+
+            lote.update(
+                arquivo.reference,
+                mapOf(
+                    "quantidadeItens" to quantidadeItens,
+                    "atualizadoEm" to FieldValue.serverTimestamp(),
+                ),
+            )
+        }
 
         lote.update(
-            referenciaArquivo,
+            referenciaCaderno,
             mapOf(
-                "quantidadeItens" to FieldValue.increment(-1),
+                "revisados" to totalRevisados,
+                "restantes" to (totalItens - totalRevisados),
                 "atualizadoEm" to FieldValue.serverTimestamp(),
             ),
         )
@@ -218,10 +402,19 @@ class FonteDadosFirestoreConteudo {
             }.addOnFailureListener { exception ->
                 aoErro(
                     exception.message
-                        ?: "Não foi possível excluir o conteúdo.",
+                        ?: "Não foi possível atualizar o progresso.",
                 )
             }
     }
+
+    private fun referenciaArquivo(
+        cadernoId: String,
+        arquivoId: String,
+    ) = banco
+        .collection("cadernos")
+        .document(cadernoId)
+        .collection("arquivos")
+        .document(arquivoId)
 
     private fun validarIds(
         cadernoId: String,
@@ -242,7 +435,8 @@ class FonteDadosFirestoreConteudo {
     }
 
     private fun documentoParaConteudo(documento: DocumentSnapshot): ConteudoFirestore {
-        val alternativasBrutas = documento.get("alternativas") as? List<*>
+        val alternativasBrutas =
+            documento.get("alternativas") as? List<*>
 
         return ConteudoFirestore(
             id = documento.id,
