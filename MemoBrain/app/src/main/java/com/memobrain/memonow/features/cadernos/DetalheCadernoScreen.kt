@@ -1,21 +1,8 @@
 package com.memobrain.memonow.features.cadernos
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,18 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,14 +18,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.memobrain.memonow.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +32,8 @@ fun DetalheCadernoScreen(
     modifier: Modifier = Modifier,
     viewModel: DetalheCadernoViewModel = viewModel(),
     onBackClick: () -> Unit,
+    onIrParaInicio: () -> Unit = {},
+    onIrParaCadernos: () -> Unit = {},
     onNovoArquivoClick: () -> Unit,
     onTopicoClick: (TopicoExercicio) -> Unit,
     onEditarArquivoClick: (String) -> Unit = {},
@@ -93,13 +68,16 @@ fun DetalheCadernoScreen(
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.CADERNOS,
                 onAbaClick = { aba ->
-                    if (aba == AbaMenu.INICIO) {
-                        onBackClick()
+                    when (aba) {
+                        AbaMenu.INICIO -> onIrParaInicio()
+                        AbaMenu.CADERNOS -> onIrParaCadernos()
+                        else -> Unit
                     }
                 },
             )
         },
         containerColor = Color(0xFFF7FAFC),
+        contentWindowInsets = WindowInsets.systemBars,
     ) { innerPadding ->
         Column(
             modifier =
@@ -114,17 +92,12 @@ fun DetalheCadernoScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                contentAlignment = Alignment.Center,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier.align(Alignment.CenterStart),
-                ) {
+                IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Voltar",
@@ -137,19 +110,9 @@ fun DetalheCadernoScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2D3748),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    modifier =
-                        Modifier
-                            .align(Alignment.Center)
-                            .padding(horizontal = 56.dp),
                 )
 
-                IconButton(
-                    onClick = {},
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                ) {
+                IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Mais opções",
@@ -209,17 +172,11 @@ fun DetalheCadernoScreen(
 
                 else -> {
                     LazyColumn(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(bottom = 24.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp),
                     ) {
-                        items(
-                            items = state.listaTopicos,
-                            key = { it.id },
-                        ) { topico ->
+                        items(state.listaTopicos) { topico ->
                             CardTopicoItem(
                                 topico = topico,
                                 onClick = {
@@ -234,13 +191,12 @@ fun DetalheCadernoScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Button(
                 onClick = onNovoArquivoClick,
                 modifier =
                     Modifier
                         .fillMaxWidth()
+                        .padding(bottom = 8.dp)
                         .height(48.dp),
                 colors =
                     ButtonDefaults.buttonColors(
@@ -255,8 +211,6 @@ fun DetalheCadernoScreen(
                     fontSize = 14.sp,
                 )
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -299,13 +253,11 @@ fun CardTopicoItem(
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                Image(
-                    painter =
-                        painterResource(
-                            id = R.drawable.ic_cadernos_azul,
-                        ),
-                    contentDescription = "Arquivo",
-                    modifier = Modifier.size(26.dp),
+                Text(
+                    text = "Doc",
+                    fontSize = 14.sp,
+                    color = Color(0xFF718096),
+                    fontWeight = FontWeight.Bold,
                 )
             }
 
@@ -334,12 +286,10 @@ fun CardTopicoItem(
                 )
             }
 
-            IconButton(
-                onClick = onEditarClick,
-            ) {
+            IconButton(onClick = onEditarClick) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Editar arquivo",
+                    contentDescription = "Editar",
                     tint = Color(0xFF9EA8B6),
                     modifier = Modifier.size(20.dp),
                 )
