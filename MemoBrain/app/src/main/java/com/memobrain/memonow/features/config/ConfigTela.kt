@@ -1,20 +1,43 @@
 package com.memobrain.memonow.features.perfil
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack // Importado para a seta de voltar correta
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,84 +45,148 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.memobrain.memonow.R
-import com.memobrain.memonow.features.cadernos.MenuInferiorMemonow
 import com.memobrain.memonow.features.cadernos.AbaMenu
+import com.memobrain.memonow.features.cadernos.MenuInferiorMemonow
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ConfigTela(
     onIrParaInicio: () -> Unit = {},
     onIrParaCadernos: () -> Unit = {},
+    onSair: () -> Unit = {},
+    onContaExcluida: () -> Unit = {},
 ) {
+    val autenticacao = remember {
+        FirebaseAuth.getInstance()
+    }
+
+    val banco = remember {
+        FirebaseFirestore.getInstance()
+    }
+
+    val usuario = autenticacao.currentUser
+
+    var nomeUsuario by remember(usuario?.uid) {
+        mutableStateOf(
+            obterNomeExibicao(
+                nome = usuario?.displayName.orEmpty(),
+                email = usuario?.email.orEmpty(),
+            ),
+        )
+    }
+
+    var mostrarDialogoExclusao by remember {
+        mutableStateOf(false)
+    }
+
+    var estaExcluindo by remember {
+        mutableStateOf(false)
+    }
+
+    var mensagemErro by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    LaunchedEffect(usuario?.uid) {
+        val usuarioId = usuario?.uid ?: return@LaunchedEffect
+
+        val documentoUsuario = runCatching {
+            banco
+                .collection("usuarios")
+                .document(usuarioId)
+                .get()
+                .await()
+        }.getOrNull()
+
+        val nomeFirestore = documentoUsuario
+            ?.getString("nome")
+            .orEmpty()
+
+        nomeUsuario = obterNomeExibicao(
+            nome = nomeFirestore.ifBlank {
+                usuario?.displayName.orEmpty()
+            },
+            email = usuario?.email.orEmpty(),
+        )
+    }
+
+    val contaCriadaEm = formatarDataCriacao(
+        usuario?.metadata?.creationTimestamp,
+    )
+
     Scaffold(
         containerColor = Color(0xFFF8F9FA),
-
-                bottomBar = {
+        bottomBar = {
             MenuInferiorMemonow(
-                abaSelecionada = AbaMenu.PERFIL, // Indica que a aba Perfil está ativa nesta tela
+                abaSelecionada = AbaMenu.PERFIL,
                 onAbaClick = { aba ->
                     when (aba) {
                         AbaMenu.INICIO -> onIrParaInicio()
                         AbaMenu.CADERNOS -> onIrParaCadernos()
-                        else -> {} // Já está no Perfil, não faz nada
+                        else -> Unit
                     }
-                }
+                },
             )
-        }
-
+        },
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp)
+                .padding(24.dp),
         ) {
-
-
             Text(
                 text = "Minha Conta",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 24.dp)
+                modifier = Modifier.padding(bottom = 24.dp),
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.foto_cerebro),
+                    painter = painterResource(
+                        id = R.drawable.foto_cerebro,
+                    ),
                     contentDescription = "Foto de perfil",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(64.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
                     Text(
-                        text = "Allyson Novaes",
+                        text = nomeUsuario,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
+
                     Text(
-                        text = "Conta criada em Junho-2026",
+                        text = contaCriadaEm,
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
+
                     Text(
-                        text = "Conta Free",
-                        fontSize = 14.sp,
+                        text = "Free",
+                        fontSize = 13.sp,
                         color = Color(0xFF70A19F),
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
                 }
             }
@@ -108,20 +195,22 @@ fun ConfigTela(
                 text = "Configurações",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
 
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White,
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+                    .padding(bottom = 24.dp),
             ) {
                 Column {
                     ConfigItem("Configurações da conta")
                     HorizontalDivider(color = Color(0xFFF0F0F0))
-                    ConfigItem("Configurar Notificações")
+                    ConfigItem("Configurar notificações")
                     HorizontalDivider(color = Color(0xFFF0F0F0))
                     ConfigItem("Planos")
                 }
@@ -131,18 +220,20 @@ fun ConfigTela(
                 text = "Outros",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
 
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White,
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = 32.dp),
             ) {
                 Column {
-                    ConfigItem("Privacidade e Confidencialidade")
+                    ConfigItem("Privacidade e confidencialidade")
                     HorizontalDivider(color = Color(0xFFF0F0F0))
                     ConfigItem("Sobre o app")
                     HorizontalDivider(color = Color(0xFFF0F0F0))
@@ -150,57 +241,212 @@ fun ConfigTela(
                 }
             }
 
+            mensagemErro?.let { erro ->
+                Text(
+                    text = erro,
+                    color = Color(0xFFD32F2F),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+            }
+
             OutlinedButton(
-                onClick = {},
-                shape = RoundedCornerShape(12.dp),
+                onClick = {
+                    mostrarDialogoExclusao = true
+                },
+                enabled = !estaExcluindo,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = Color(0xFF334155),
+                ),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF2B4674),
+                ),
             ) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+
                 Spacer(modifier = Modifier.width(8.dp))
+
                 Text(text = "Deletar minha conta")
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = {},
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC75A43)),
+                onClick = {
+                    autenticacao.signOut()
+                    onSair()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFC75A43),
+                ),
             ) {
-                Icon(imageVector = Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                    contentDescription = null,
+                    tint = Color.White,
+                )
+
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Sair", color = Color.White)
+
+                Text(
+                    text = "Sair",
+                    color = Color.White,
+                )
             }
         }
     }
-}
 
-@Composable
-fun ConfigItem(title: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { }
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = title, fontSize = 15.sp, color = Color.Gray)
-        Icon(
-            imageVector = Icons.Default.ArrowForward,
-            contentDescription = null,
-            tint = Color.LightGray,
-            modifier = Modifier.size(18.dp)
+    if (mostrarDialogoExclusao) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!estaExcluindo) {
+                    mostrarDialogoExclusao = false
+                }
+            },
+            title = {
+                Text("Deletar conta?")
+            },
+            text = {
+                Text(
+                    "Essa ação remove o acesso à sua conta e não poderá ser desfeita.",
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val usuarioAtual = autenticacao.currentUser
+
+                        if (usuarioAtual == null) {
+                            mostrarDialogoExclusao = false
+                            mensagemErro = "Nenhuma conta está logada."
+                        } else {
+                            estaExcluindo = true
+                            mensagemErro = null
+
+                            usuarioAtual
+                                .delete()
+                                .addOnSuccessListener {
+                                    estaExcluindo = false
+                                    mostrarDialogoExclusao = false
+                                    onContaExcluida()
+                                }
+                                .addOnFailureListener { erro ->
+                                    estaExcluindo = false
+                                    mensagemErro = erro.message
+                                        ?: "Não foi possível excluir a conta. Entre novamente e tente outra vez."
+                                }
+                        }
+                    },
+                    enabled = !estaExcluindo,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFC75A43),
+                    ),
+                ) {
+                    Text(
+                        text = if (estaExcluindo) {
+                            "Excluindo..."
+                        } else {
+                            "Excluir"
+                        },
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogoExclusao = false
+                    },
+                    enabled = !estaExcluindo,
+                ) {
+                    Text("Cancelar")
+                }
+            },
         )
     }
 }
 
-// 3. ATUALIZADO: Ajustado o Preview para passar o onVoltar vazio
-@Preview(showBackground = true)
 @Composable
-fun PreviewConfigTela() {}
+private fun ConfigItem(
+    title: String,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { }
+            .padding(
+                horizontal = 16.dp,
+                vertical = 16.dp,
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            fontSize = 15.sp,
+            color = Color.Gray,
+        )
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = Color.LightGray,
+            modifier = Modifier.size(18.dp),
+        )
+    }
+}
+
+private fun obterNomeExibicao(
+    nome: String,
+    email: String,
+): String {
+    val localePtBr = Locale.forLanguageTag("pt-BR")
+
+    val base = nome.ifBlank {
+        email.substringBefore("@")
+    }.ifBlank {
+        "Usuário"
+    }
+
+    return base
+        .replace(".", " ")
+        .replace("_", " ")
+        .replace("-", " ")
+        .trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+        .joinToString(" ") { palavra ->
+            palavra
+                .lowercase(localePtBr)
+                .replaceFirstChar {
+                    it.titlecase(localePtBr)
+                }
+        }
+}
+
+private fun formatarDataCriacao(
+    timestamp: Long?,
+): String {
+    if (timestamp == null) {
+        return "Conta criada"
+    }
+
+    val formato = SimpleDateFormat(
+        "MMMM-yyyy",
+        Locale.forLanguageTag("pt-BR"),
+    )
+
+    return "Conta criada em ${formato.format(Date(timestamp))}"
+}
