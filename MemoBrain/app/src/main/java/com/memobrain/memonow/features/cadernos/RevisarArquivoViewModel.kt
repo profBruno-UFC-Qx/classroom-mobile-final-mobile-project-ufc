@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.memobrain.memonow.data.remote.firestore.TipoConteudo
 import com.memobrain.memonow.data.repository.repositorio.ConteudoEstudo
 import com.memobrain.memonow.data.repository.repositorio.RepositorioConteudo
+import com.memobrain.memonow.data.repository.repositorio.RepositorioHistorico
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,8 @@ data class RevisarArquivoUiState(
     val isLoading: Boolean = true,
     val mensagemErro: String? = null,
     val acertos: Int = 0,
-    val tempoInicio: Long = System.currentTimeMillis()
+    val tempoInicio: Long = System.currentTimeMillis(),
+    val finalizando: Boolean = false,
 ) {
     val conteudoAtual: ConteudoEstudo?
         get() = conteudos.getOrNull(indiceAtual)
@@ -63,11 +65,15 @@ data class RevisarArquivoUiState(
 
 class RevisarArquivoViewModel : ViewModel() {
     private val repositorioConteudo = RepositorioConteudo()
+    private val repositorioHistorico = RepositorioHistorico()
 
     private var listenerConteudos: ListenerRegistration? = null
 
     private var cadernoIdAtual = ""
+    private var cadernoTituloAtual = ""
     private var arquivoIdAtual = ""
+    private var arquivoTituloAtual = ""
+    private var arquivoDescricaoAtual = ""
 
     private val _uiState =
         MutableStateFlow(
@@ -85,7 +91,10 @@ class RevisarArquivoViewModel : ViewModel() {
         arquivoDescricao: String,
     ) {
         cadernoIdAtual = cadernoId
+        cadernoTituloAtual = cadernoTitulo
         arquivoIdAtual = arquivoId
+        arquivoTituloAtual = arquivoTitulo
+        arquivoDescricaoAtual = arquivoDescricao
 
         listenerConteudos?.remove()
 
@@ -142,41 +151,17 @@ class RevisarArquivoViewModel : ViewModel() {
                             conteudos = conteudos,
                             indiceAtual = indiceNovo,
                             respostaAberta =
-                                if (mudouConteudo) {
-                                    ""
-                                } else {
-                                    estadoAnterior.respostaAberta
-                                },
+                                if (mudouConteudo) "" else estadoAnterior.respostaAberta,
                             opcaoSelecionada =
-                                if (mudouConteudo) {
-                                    null
-                                } else {
-                                    estadoAnterior.opcaoSelecionada
-                                },
+                                if (mudouConteudo) null else estadoAnterior.opcaoSelecionada,
                             respondeu =
-                                if (mudouConteudo) {
-                                    false
-                                } else {
-                                    estadoAnterior.respondeu
-                                },
+                                if (mudouConteudo) false else estadoAnterior.respondeu,
                             respostaCorreta =
-                                if (mudouConteudo) {
-                                    false
-                                } else {
-                                    estadoAnterior.respostaCorreta
-                                },
+                                if (mudouConteudo) false else estadoAnterior.respostaCorreta,
                             feedbackVisivel =
-                                if (mudouConteudo) {
-                                    false
-                                } else {
-                                    estadoAnterior.feedbackVisivel
-                                },
+                                if (mudouConteudo) false else estadoAnterior.feedbackVisivel,
                             feedbackRespostaCorreta =
-                                if (mudouConteudo) {
-                                    ""
-                                } else {
-                                    estadoAnterior.feedbackRespostaCorreta
-                                },
+                                if (mudouConteudo) "" else estadoAnterior.feedbackRespostaCorreta,
                             isLoading = false,
                             mensagemErro = null,
                         )
@@ -259,7 +244,7 @@ class RevisarArquivoViewModel : ViewModel() {
                 respostaCorreta = acertou,
                 feedbackVisivel = true,
                 feedbackRespostaCorreta = respostaCorretaTexto,
-                acertos = if (acertou) it.acertos + 1 else it.acertos
+                acertos = if (acertou) it.acertos + 1 else it.acertos,
             )
         }
     }
@@ -267,9 +252,13 @@ class RevisarArquivoViewModel : ViewModel() {
     fun continuarParaProximo(onFinalizado: (Int, Int, Long) -> Unit) {
         val estadoAtual = _uiState.value
 
+        if (estadoAtual.finalizando) return
+
         if (!estadoAtual.temProximo) {
-            val tempoGasto = System.currentTimeMillis() - estadoAtual.tempoInicio
-            onFinalizado(estadoAtual.acertos, estadoAtual.conteudos.size, tempoGasto)
+            finalizarRevisao(
+                estadoAtual = estadoAtual,
+                onFinalizado = onFinalizado,
+            )
             return
         }
 
@@ -295,6 +284,60 @@ class RevisarArquivoViewModel : ViewModel() {
         }
     }
 
+    private fun finalizarRevisao(
+        estadoAtual: RevisarArquivoUiState,
+        onFinalizado: (Int, Int, Long) -> Unit,
+    ) {
+        val tempoGasto =
+            System.currentTimeMillis() - estadoAtual.tempoInicio
+
+        _uiState.update {
+            it.copy(
+                finalizando = true,
+                mensagemErro = null,
+            )
+        }
+
+        repositorioConteudo.concluirRevisao(
+            cadernoId = cadernoIdAtual,
+            arquivoId = arquivoIdAtual,
+            conteudoIds = estadoAtual.conteudos.map { it.id },
+            aoSucesso = {
+                repositorioHistorico.registrarAtividade(
+                    cadernoId = cadernoIdAtual,
+                    cadernoTitulo = cadernoTituloAtual,
+                    arquivoId = arquivoIdAtual,
+                    arquivoTitulo = arquivoTituloAtual,
+                    arquivoDescricao = arquivoDescricaoAtual,
+                    metodo = obterMetodoDaRevisao(estadoAtual.conteudos),
+                    aoSucesso = {
+                        onFinalizado(
+                            estadoAtual.acertos,
+                            estadoAtual.conteudos.size,
+                            tempoGasto,
+                        )
+                    },
+                    aoErro = { erro ->
+                        _uiState.update {
+                            it.copy(
+                                finalizando = false,
+                                mensagemErro = erro,
+                            )
+                        }
+                    },
+                )
+            },
+            aoErro = { erro ->
+                _uiState.update {
+                    it.copy(
+                        finalizando = false,
+                        mensagemErro = erro,
+                    )
+                }
+            },
+        )
+    }
+
     fun excluirConteudoAtual() {
         val conteudoId = _uiState.value.conteudoAtual?.id ?: return
 
@@ -309,6 +352,27 @@ class RevisarArquivoViewModel : ViewModel() {
                 }
             },
         )
+    }
+
+    private fun obterMetodoDaRevisao(conteudos: List<ConteudoEstudo>): String {
+        val tipos =
+            conteudos
+                .map { it.tipo }
+                .distinct()
+
+        return when {
+            tipos.size > 1 -> {
+                "Revisão mista"
+            }
+
+            tipos.firstOrNull() == TipoConteudo.MULTIPLA_ESCOLHA -> {
+                "Múltipla Escolha"
+            }
+
+            else -> {
+                "Pergunta Aberta"
+            }
+        }
     }
 
     private fun normalizarTexto(texto: String): String =
