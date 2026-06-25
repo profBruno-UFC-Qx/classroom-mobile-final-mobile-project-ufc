@@ -53,14 +53,14 @@ data class MetodoEstudo(
 
 data class AtividadeRecente(
     val idArquivo: String = "",
-    val titulo: String,
-    val subtitulo: String,
+    val titulo: String = "",
+    val subtitulo: String = "",
     val metodo: String = "",
 )
 
 data class CadernoAndamento(
     val id: String = "",
-    val titulo: String,
+    val titulo: String = "",
 )
 
 enum class AbaMenu {
@@ -74,6 +74,8 @@ enum class AbaMenu {
 fun DashboardCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaCadernos: () -> Unit = {},
+    onIrParaPerfil: () -> Unit = {},
+    onMetodoClick: (String) -> Unit = {},
     viewModel: HomeViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -84,8 +86,10 @@ fun DashboardCadernosTela(
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.INICIO,
                 onAbaClick = { aba ->
-                    if (aba == AbaMenu.CADERNOS) {
-                        onIrParaCadernos()
+                    when (aba) {
+                        AbaMenu.CADERNOS -> onIrParaCadernos()
+                        AbaMenu.PERFIL -> onIrParaPerfil()
+                        else -> Unit
                     }
                 },
             )
@@ -98,7 +102,10 @@ fun DashboardCadernosTela(
                 .padding(paddingValues)
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp, vertical = 10.dp),
+                .padding(
+                    horizontal = 18.dp,
+                    vertical = 10.dp,
+                ),
         ) {
             HeaderUsuario(nome = uiState.nomeUsuario)
 
@@ -139,27 +146,25 @@ fun DashboardCadernosTela(
                 uiState.metodosEstudo.forEach { metodo ->
                     CardMetodoEstudo(
                         metodo = metodo,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onMetodoClick(metodo.titulo)
+                            },
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            if (uiState.cadernosEmAndamento.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(28.dp))
 
-            SectionHeader(
-                titulo = "Cadernos em andamento",
-                onVerMaisClick = {},
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            if (uiState.cadernosEmAndamento.isEmpty()) {
-                Text(
-                    text = "Nenhum caderno estudado recentemente.",
-                    fontSize = 13.sp,
-                    color = Color(0xFF8A94A6),
+                SectionHeader(
+                    titulo = "Cadernos em andamento",
+                    onVerMaisClick = onIrParaCadernos,
                 )
-            } else {
+
+                Spacer(modifier = Modifier.height(14.dp))
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -185,25 +190,17 @@ fun DashboardCadernosTela(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            if (uiState.atividadesRecentes.isEmpty()) {
-                Text(
-                    text = "Nenhum arquivo estudado recentemente.",
-                    fontSize = 13.sp,
-                    color = Color(0xFF8A94A6),
-                )
-            } else {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    uiState.atividadesRecentes
-                        .take(5)
-                        .forEach { atividade ->
-                            CardAtividadeRecente(
-                                atividade = atividade,
-                            )
-                        }
-                }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                uiState.atividadesRecentes
+                    .take(5)
+                    .forEach { atividade ->
+                        CardAtividadeRecente(
+                            atividade = atividade,
+                        )
+                    }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -214,8 +211,8 @@ fun DashboardCadernosTela(
 @Composable
 fun HeaderUsuario(nome: String) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
             painter = painterResource(id = R.drawable.foto_cerebro),
@@ -254,7 +251,9 @@ fun FilterChipMemonow(
     onClick: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier.clickable { onClick() },
+        modifier = Modifier.clickable {
+            onClick()
+        },
         shape = RoundedCornerShape(22.dp),
         color = if (isSelected) {
             Color(0xFF22496E)
@@ -302,7 +301,10 @@ fun CardMetodoEstudo(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 10.dp),
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = 10.dp,
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -363,7 +365,7 @@ fun CardCadernoAndamento(
     Card(
         modifier = Modifier
             .width(128.dp)
-            .height(118.dp),
+            .height(142.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         ),
@@ -375,9 +377,11 @@ fun CardCadernoAndamento(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 10.dp, vertical = 10.dp),
+                .padding(
+                    horizontal = 10.dp,
+                    vertical = 10.dp,
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
                 modifier = Modifier
@@ -389,20 +393,27 @@ fun CardCadernoAndamento(
                     painter = painterResource(
                         id = R.drawable.ic_memobrain_logo,
                     ),
-                    contentDescription = caderno.titulo,
-                    modifier = Modifier.size(72.dp),
+                    contentDescription = null,
+                    modifier = Modifier.size(70.dp),
                     contentScale = ContentScale.Fit,
                 )
             }
 
+            Spacer(modifier = Modifier.height(6.dp))
+
             Text(
-                text = caderno.titulo,
-                fontSize = 14.sp,
+                text = limitarTituloCaderno(caderno.titulo),
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF1A2536),
+                textAlign = TextAlign.Center,
                 maxLines = 1,
+                softWrap = false,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth(),
+                lineHeight = 13.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(16.dp),
             )
         }
     }
@@ -431,8 +442,8 @@ fun CardAtividadeRecente(
                 modifier = Modifier
                     .size(60.dp)
                     .background(
-                        Color(0xFFE9F6F2),
-                        RoundedCornerShape(12.dp),
+                        color = Color(0xFFE9F6F2),
+                        shape = RoundedCornerShape(12.dp),
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -570,7 +581,6 @@ fun MenuInferiorMemonow(
                     ) {
                         Box(
                             modifier = Modifier
-                                .padding(top = 0.dp)
                                 .width(34.dp)
                                 .height(3.dp)
                                 .background(
@@ -620,6 +630,23 @@ fun MenuInferiorMemonow(
                 )
             }
         }
+    }
+}
+
+private fun limitarTituloCaderno(
+    titulo: String,
+    limite: Int = 18,
+): String {
+    val tituloLimpo = titulo
+        .trim()
+        .replace(Regex("\\s+"), " ")
+
+    return if (tituloLimpo.length <= limite) {
+        tituloLimpo
+    } else {
+        tituloLimpo
+            .take(limite - 1)
+            .trimEnd() + "…"
     }
 }
 
