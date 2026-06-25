@@ -1,7 +1,6 @@
 package com.memobrain.memonow.features.cadernos
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -12,8 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
 data class HomeUiState(
@@ -30,8 +27,11 @@ class HomeViewModel : ViewModel() {
     private val repositorioCaderno = RepositorioCaderno()
     private val repositorioHistorico = RepositorioHistorico()
 
+    private var listenerPerfil: ListenerRegistration? = null
     private var listenerCadernos: ListenerRegistration? = null
     private var listenerHistorico: ListenerRegistration? = null
+
+    private var usuarioIdAtual: String? = null
 
     private val _uiState = MutableStateFlow(HomeUiState())
 
@@ -39,9 +39,61 @@ class HomeViewModel : ViewModel() {
 
     init {
         carregarDadosIniciais()
-        carregarNomeUsuario()
-        observarCadernos()
-        observarHistorico()
+    }
+
+    fun carregarDadosDoUsuario(usuarioId: String?) {
+        if (usuarioId.isNullOrBlank()) {
+            limparDadosDoUsuario()
+            return
+        }
+
+        if (usuarioId == usuarioIdAtual) {
+            return
+        }
+
+        usuarioIdAtual = usuarioId
+
+        listenerPerfil?.remove()
+        listenerCadernos?.remove()
+        listenerHistorico?.remove()
+
+        listenerPerfil = null
+        listenerCadernos = null
+        listenerHistorico = null
+
+        _uiState.update {
+            it.copy(
+                nomeUsuario = "Usuário",
+                cadernosEmAndamento = emptyList(),
+                atividadesRecentes = emptyList(),
+                isLoading = true,
+            )
+        }
+
+        observarPerfil(usuarioId)
+        observarCadernos(usuarioId)
+        observarHistorico(usuarioId)
+    }
+
+    private fun limparDadosDoUsuario() {
+        usuarioIdAtual = null
+
+        listenerPerfil?.remove()
+        listenerCadernos?.remove()
+        listenerHistorico?.remove()
+
+        listenerPerfil = null
+        listenerCadernos = null
+        listenerHistorico = null
+
+        _uiState.update {
+            it.copy(
+                nomeUsuario = "Usuário",
+                cadernosEmAndamento = emptyList(),
+                atividadesRecentes = emptyList(),
+                isLoading = false,
+            )
+        }
     }
 
     private fun carregarDadosIniciais() {
@@ -73,48 +125,47 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun carregarNomeUsuario() {
-        viewModelScope.launch {
-            val usuario =
-                FirebaseAuth.getInstance().currentUser
-                    ?: return@launch
+    private fun observarPerfil(usuarioId: String) {
+        listenerPerfil =
+            FirebaseFirestore
+                .getInstance()
+                .collection("usuarios")
+                .document(usuarioId)
+                .addSnapshotListener { documento, _ ->
+                    if (usuarioId != usuarioIdAtual) {
+                        return@addSnapshotListener
+                    }
 
-            val documentoUsuario =
-                runCatching {
-                    FirebaseFirestore
-                        .getInstance()
-                        .collection("usuarios")
-                        .document(usuario.uid)
-                        .get()
-                        .await()
-                }.getOrNull()
+                    val usuarioFirebase = FirebaseAuth.getInstance().currentUser
 
-            val nomeFirestore =
-                documentoUsuario
-                    ?.getString("nome")
-                    .orEmpty()
+                    val nomeFirestore =
+                        documento
+                            ?.getString("nome")
+                            .orEmpty()
 
-            val nomeFinal =
-                formatarNome(
-                    nome =
-                        nomeFirestore.ifBlank {
-                            usuario.displayName.orEmpty()
-                        },
-                    email = usuario.email.orEmpty(),
-                )
+                    val nomeFinal =
+                        formatarNome(
+                            nome =
+                                nomeFirestore.ifBlank {
+                                    usuarioFirebase?.displayName.orEmpty()
+                                },
+                            email = usuarioFirebase?.email.orEmpty(),
+                        )
 
-            _uiState.update {
-                it.copy(nomeUsuario = nomeFinal)
-            }
-        }
+                    _uiState.update {
+                        it.copy(nomeUsuario = nomeFinal)
+                    }
+                }
     }
 
-    private fun observarCadernos() {
-        listenerCadernos?.remove()
-
+    private fun observarCadernos(usuarioId: String) {
         listenerCadernos =
             repositorioCaderno.observarCadernosDoUsuario(
                 aoAtualizar = { cadernos ->
+                    if (usuarioId != usuarioIdAtual) {
+                        return@observarCadernosDoUsuario
+                    }
+
                     _uiState.update {
                         it.copy(
                             cadernosEmAndamento =
@@ -131,19 +182,28 @@ class HomeViewModel : ViewModel() {
                     }
                 },
                 aoErro = {
+                    if (usuarioId != usuarioIdAtual) {
+                        return@observarCadernosDoUsuario
+                    }
+
                     _uiState.update {
-                        it.copy(isLoading = false)
+                        it.copy(
+                            cadernosEmAndamento = emptyList(),
+                            isLoading = false,
+                        )
                     }
                 },
             )
     }
 
-    private fun observarHistorico() {
-        listenerHistorico?.remove()
-
+    private fun observarHistorico(usuarioId: String) {
         listenerHistorico =
             repositorioHistorico.observarHistorico(
                 aoAtualizar = { historicos ->
+                    if (usuarioId != usuarioIdAtual) {
+                        return@observarHistorico
+                    }
+
                     val atividadesRecentes =
                         historicos
                             .take(5)
@@ -164,8 +224,15 @@ class HomeViewModel : ViewModel() {
                     }
                 },
                 aoErro = {
+                    if (usuarioId != usuarioIdAtual) {
+                        return@observarHistorico
+                    }
+
                     _uiState.update {
-                        it.copy(isLoading = false)
+                        it.copy(
+                            atividadesRecentes = emptyList(),
+                            isLoading = false,
+                        )
                     }
                 },
             )
@@ -178,6 +245,7 @@ class HomeViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        listenerPerfil?.remove()
         listenerCadernos?.remove()
         listenerHistorico?.remove()
         super.onCleared()
