@@ -18,9 +18,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -50,15 +52,21 @@ fun RegistrarTela(
     onCadastroSucesso: () -> Unit = {},
     onIrParaLogin: () -> Unit = {},
 ) {
-    val servicoCadastro = remember { ServicoCadastroFirebase() }
+    val servicoCadastro =
+        remember {
+            ServicoCadastroFirebase()
+        }
 
+    var nome by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telefone by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
+
     var senhaVisivel by remember { mutableStateOf(false) }
     var mensagemCadastro by remember { mutableStateOf("") }
     var carregando by remember { mutableStateOf(false) }
 
+    var erroNome by remember { mutableStateOf<String?>(null) }
     var erroEmail by remember { mutableStateOf<String?>(null) }
     var erroTelefone by remember { mutableStateOf<String?>(null) }
     var erroSenha by remember { mutableStateOf<String?>(null) }
@@ -70,13 +78,20 @@ fun RegistrarTela(
                 .background(Color(0xFFF6F8FB))
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(start = 18.dp, end = 18.dp, top = 52.dp, bottom = 24.dp),
+                .padding(
+                    start = 18.dp,
+                    end = 18.dp,
+                    top = 20.dp,
+                    bottom = 24.dp,
+                ),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = "Crie sua conta",
@@ -93,9 +108,27 @@ fun RegistrarTela(
                 color = Color(0xFF64748B),
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(26.dp))
 
-            // E-mail
+            Text(
+                text = "Nome completo",
+                fontSize = 15.sp,
+                color = Color(0xFF475569),
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
+
+            CampoTextoCadastro(
+                valor = nome,
+                placeholder = "Digite seu nome completo",
+                erro = erroNome,
+                onValorChange = {
+                    nome = it
+                    erroNome = null
+                },
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             Text(
                 text = "E-mail",
                 fontSize = 15.sp,
@@ -103,61 +136,19 @@ fun RegistrarTela(
                 modifier = Modifier.padding(bottom = 6.dp),
             )
 
-            BasicTextField(
-                value = email,
-                onValueChange = {
+            CampoTextoCadastro(
+                valor = email,
+                placeholder = "Digite seu e-mail",
+                erro = erroEmail,
+                keyboardType = KeyboardType.Email,
+                onValorChange = {
                     email = it
                     erroEmail = null
                 },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(42.dp)
-                        .background(Color.White, RoundedCornerShape(12.dp)),
-                textStyle =
-                    TextStyle(
-                        fontSize = 15.sp,
-                        color = Color(0xFF111827),
-                    ),
-                singleLine = true,
-                decorationBox = { innerTextField ->
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .border(
-                                    1.dp,
-                                    if (erroEmail != null) Color(0xFFD32F2F) else Color(0xFFD1D5DB),
-                                    RoundedCornerShape(12.dp),
-                                ).padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            if (email.isEmpty()) {
-                                Text(
-                                    text = "Digite seu e-mail",
-                                    color = Color(0xFFA9AFB7),
-                                    fontSize = 14.sp,
-                                )
-                            }
-                            innerTextField()
-                        }
-                    }
-                },
             )
-
-            if (erroEmail != null) {
-                Text(
-                    text = erroEmail ?: "",
-                    color = Color(0xFFD32F2F),
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Número
             Text(
                 text = "Número",
                 fontSize = 15.sp,
@@ -177,13 +168,19 @@ fun RegistrarTela(
                     Modifier
                         .fillMaxWidth()
                         .height(42.dp)
-                        .background(Color.White, RoundedCornerShape(12.dp)),
+                        .background(
+                            Color.White,
+                            RoundedCornerShape(12.dp),
+                        ),
                 textStyle =
                     TextStyle(
                         fontSize = 16.sp,
                         color = Color(0xFF111827),
                     ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                    ),
                 singleLine = true,
                 decorationBox = { innerTextField ->
                     Row(
@@ -191,9 +188,14 @@ fun RegistrarTela(
                             Modifier
                                 .fillMaxSize()
                                 .border(
-                                    1.dp,
-                                    if (erroTelefone != null) Color(0xFFD32F2F) else Color(0xFFD1D5DB),
-                                    RoundedCornerShape(12.dp),
+                                    width = 1.dp,
+                                    color =
+                                        if (erroTelefone != null) {
+                                            Color(0xFFD32F2F)
+                                        } else {
+                                            Color(0xFFD1D5DB)
+                                        },
+                                    shape = RoundedCornerShape(12.dp),
                                 ).padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -216,7 +218,9 @@ fun RegistrarTela(
 
                         Spacer(modifier = Modifier.width(12.dp))
 
-                        Box(modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier.weight(1f),
+                        ) {
                             if (telefone.isEmpty()) {
                                 Text(
                                     text = "Digite seu telefone",
@@ -224,15 +228,16 @@ fun RegistrarTela(
                                     fontSize = 14.sp,
                                 )
                             }
+
                             innerTextField()
                         }
                     }
                 },
             )
 
-            if (erroTelefone != null) {
+            erroTelefone?.let { erro ->
                 Text(
-                    text = erroTelefone ?: "",
+                    text = erro,
                     color = Color(0xFFD32F2F),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp),
@@ -241,7 +246,6 @@ fun RegistrarTela(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Senha
             Text(
                 text = "Senha",
                 fontSize = 15.sp,
@@ -262,7 +266,10 @@ fun RegistrarTela(
                         Modifier
                             .weight(1f)
                             .height(42.dp)
-                            .background(Color.White, RoundedCornerShape(12.dp)),
+                            .background(
+                                Color.White,
+                                RoundedCornerShape(12.dp),
+                            ),
                     textStyle =
                         TextStyle(
                             fontSize = 16.sp,
@@ -281,13 +288,20 @@ fun RegistrarTela(
                                 Modifier
                                     .fillMaxSize()
                                     .border(
-                                        1.dp,
-                                        if (erroSenha != null) Color(0xFFD32F2F) else Color(0xFFD1D5DB),
-                                        RoundedCornerShape(12.dp),
+                                        width = 1.dp,
+                                        color =
+                                            if (erroSenha != null) {
+                                                Color(0xFFD32F2F)
+                                            } else {
+                                                Color(0xFFD1D5DB)
+                                            },
+                                        shape = RoundedCornerShape(12.dp),
                                     ).padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Box(modifier = Modifier.weight(1f)) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                            ) {
                                 if (senha.isEmpty()) {
                                     Text(
                                         text = "Digite sua senha",
@@ -295,6 +309,7 @@ fun RegistrarTela(
                                         fontSize = 14.sp,
                                     )
                                 }
+
                                 innerTextField()
                             }
                         }
@@ -303,27 +318,35 @@ fun RegistrarTela(
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                val iconeSenha =
-                    if (senhaVisivel) {
-                        painterResource(id = R.drawable.olho_aberto)
-                    } else {
-                        painterResource(id = R.drawable.olho_fechado)
-                    }
-
                 Icon(
-                    painter = iconeSenha,
-                    contentDescription = if (senhaVisivel) "Esconder senha" else "Mostrar senha",
+                    painter =
+                        painterResource(
+                            id =
+                                if (senhaVisivel) {
+                                    R.drawable.olho_aberto
+                                } else {
+                                    R.drawable.olho_fechado
+                                },
+                        ),
+                    contentDescription =
+                        if (senhaVisivel) {
+                            "Esconder senha"
+                        } else {
+                            "Mostrar senha"
+                        },
                     tint = Color(0xFF111827),
                     modifier =
                         Modifier
                             .size(22.dp)
-                            .clickable { senhaVisivel = !senhaVisivel },
+                            .clickable {
+                                senhaVisivel = !senhaVisivel
+                            },
                 )
             }
 
-            if (erroSenha != null) {
+            erroSenha?.let { erro ->
                 Text(
-                    text = erroSenha ?: "",
+                    text = erro,
                     color = Color(0xFFD32F2F),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp),
@@ -334,42 +357,48 @@ fun RegistrarTela(
 
             Button(
                 onClick = {
+                    erroNome = null
                     erroEmail = null
                     erroTelefone = null
                     erroSenha = null
                     mensagemCadastro = ""
 
-                    if (email.isBlank()) {
-                        erroEmail = "Digite o seu e-mail"
-                        return@Button
+                    when {
+                        nome.trim().length < 2 -> {
+                            erroNome = "Digite seu nome completo"
+                        }
+
+                        email.isBlank() || !email.contains("@") -> {
+                            erroEmail = "Digite um e-mail válido"
+                        }
+
+                        telefone.isBlank() -> {
+                            erroTelefone = "Digite seu telefone"
+                        }
+
+                        senha.length < 6 -> {
+                            erroSenha = "A senha deve ter pelo menos 6 caracteres"
+                        }
+
+                        else -> {
+                            carregando = true
+
+                            servicoCadastro.cadastrarUsuario(
+                                nome = nome,
+                                email = email,
+                                senha = senha,
+                                telefone = telefone,
+                                aoSucesso = {
+                                    carregando = false
+                                    onCadastroSucesso()
+                                },
+                                aoError = { erro ->
+                                    carregando = false
+                                    mensagemCadastro = erro
+                                },
+                            )
+                        }
                     }
-
-                    if (telefone.isBlank()) {
-                        erroTelefone = "Digite seu telefone"
-                        return@Button
-                    }
-
-                    if (senha.isBlank()) {
-                        erroSenha = "Digite sua senha"
-                        return@Button
-                    }
-
-                    carregando = true
-
-                    servicoCadastro.cadastrarUsuario(
-                        email = email,
-                        telefone = telefone,
-                        senha = senha,
-                        aoSucesso = {
-                            carregando = false
-                            mensagemCadastro = "Conta criada com sucesso"
-                            onCadastroSucesso()
-                        },
-                        aoError = { erro ->
-                            carregando = false
-                            mensagemCadastro = erro
-                        },
-                    )
                 },
                 enabled = !carregando,
                 modifier =
@@ -386,7 +415,12 @@ fun RegistrarTela(
                     ),
             ) {
                 Text(
-                    text = "Criar Conta",
+                    text =
+                        if (carregando) {
+                            "Criando conta..."
+                        } else {
+                            "Criar Conta"
+                        },
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
@@ -394,9 +428,10 @@ fun RegistrarTela(
 
             if (mensagemCadastro.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(10.dp))
+
                 Text(
                     text = mensagemCadastro,
-                    color = Color(0xFF334155),
+                    color = Color(0xFFD32F2F),
                     fontSize = 13.sp,
                 )
             }
@@ -436,14 +471,24 @@ fun RegistrarTela(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                BotaoSocialCadastro(R.drawable.ic_google, "Google")
-                BotaoSocialCadastro(R.drawable.ic_apple, "Apple")
-                BotaoSocialCadastro(R.drawable.ic_facebook, "Facebook")
+                BotaoSocialCadastro(
+                    icone = R.drawable.ic_google,
+                    descricao = "Google",
+                )
+
+                BotaoSocialCadastro(
+                    icone = R.drawable.ic_apple,
+                    descricao = "Apple",
+                )
+
+                BotaoSocialCadastro(
+                    icone = R.drawable.ic_facebook,
+                    descricao = "Facebook",
+                )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(42.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -461,10 +506,88 @@ fun RegistrarTela(
                     color = Color(0xFF1B4363),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { onIrParaLogin() },
+                    modifier =
+                        Modifier.clickable {
+                            onIrParaLogin()
+                        },
                 )
             }
+
+            Spacer(modifier = Modifier.height(18.dp))
         }
+    }
+}
+
+@Composable
+private fun CampoTextoCadastro(
+    valor: String,
+    placeholder: String,
+    erro: String?,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    onValorChange: (String) -> Unit,
+) {
+    BasicTextField(
+        value = valor,
+        onValueChange = onValorChange,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(42.dp)
+                .background(
+                    Color.White,
+                    RoundedCornerShape(12.dp),
+                ),
+        textStyle =
+            TextStyle(
+                fontSize = 15.sp,
+                color = Color(0xFF111827),
+            ),
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = keyboardType,
+            ),
+        singleLine = true,
+        decorationBox = { innerTextField ->
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .border(
+                            width = 1.dp,
+                            color =
+                                if (erro != null) {
+                                    Color(0xFFD32F2F)
+                                } else {
+                                    Color(0xFFD1D5DB)
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                        ).padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier.weight(1f),
+                ) {
+                    if (valor.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            color = Color(0xFFA9AFB7),
+                            fontSize = 14.sp,
+                        )
+                    }
+
+                    innerTextField()
+                }
+            }
+        },
+    )
+
+    erro?.let {
+        Text(
+            text = it,
+            color = Color(0xFFD32F2F),
+            fontSize = 12.sp,
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }
 
