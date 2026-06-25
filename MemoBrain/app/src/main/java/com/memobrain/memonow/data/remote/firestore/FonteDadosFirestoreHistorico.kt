@@ -27,6 +27,7 @@ class FonteDadosFirestoreHistorico {
         arquivoTitulo: String,
         arquivoDescricao: String,
         metodo: String,
+        aoSucesso: () -> Unit = {},
         aoErro: (String) -> Unit = {},
     ) {
         val usuarioId = autenticacao.currentUser?.uid
@@ -60,7 +61,9 @@ class FonteDadosFirestoreHistorico {
             .collection("historico")
             .document(idHistorico)
             .set(dadosHistorico, SetOptions.merge())
-            .addOnFailureListener { exception ->
+            .addOnSuccessListener {
+                aoSucesso()
+            }.addOnFailureListener { exception ->
                 aoErro(
                     exception.message
                         ?: "Não foi possível registrar a atividade.",
