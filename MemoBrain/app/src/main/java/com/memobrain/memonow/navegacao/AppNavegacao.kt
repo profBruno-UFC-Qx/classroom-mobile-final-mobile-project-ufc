@@ -44,6 +44,8 @@ import com.memobrain.memonow.features.registrar.RegistrarTela
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlin.compareTo
+import kotlin.text.clear
 
 @Composable
 fun AppNavegacao() {
@@ -84,8 +86,13 @@ fun AppNavegacao() {
         val usuarioFirebase = servicoLogin.obterUsuarioAtual()
         val sessao = armazenamentoSessao.sessaoFlow.first()
 
+        val sessaoValida =
+            usuarioFirebase != null &&
+                sessao != null &&
+                sessao.uid == usuarioFirebase.uid
+
         val rotaInicial =
-            if (sessao != null && usuarioFirebase != null) {
+            if (sessaoValida) {
                 try {
                     usuarioFirebase.reload().await()
                     RotaTela.InicioApp
@@ -208,9 +215,7 @@ fun AppNavegacao() {
                             )
                         },
                         onNovoCadernoClick = {
-                            backStack.add(
-                                RotaTela.CriarCaderno,
-                            )
+                            backStack.add(RotaTela.CriarCaderno)
                         },
                     )
                 }
