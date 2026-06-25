@@ -74,6 +74,22 @@ class RepositorioConteudo(
             aoErro = aoErro,
         )
 
+    fun concluirRevisao(
+        cadernoId: String,
+        arquivoId: String,
+        conteudoIds: List<String>,
+        aoSucesso: () -> Unit,
+        aoErro: (String) -> Unit,
+    ) {
+        fonteDadosFirestore.concluirRevisao(
+            cadernoId = cadernoId,
+            arquivoId = arquivoId,
+            conteudoIds = conteudoIds,
+            aoSucesso = aoSucesso,
+            aoErro = aoErro,
+        )
+    }
+
     fun excluirConteudo(
         cadernoId: String,
         arquivoId: String,
