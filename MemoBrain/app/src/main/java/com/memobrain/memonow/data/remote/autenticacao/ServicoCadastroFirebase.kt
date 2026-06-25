@@ -21,16 +21,11 @@ class ServicoCadastroFirebase {
         senha: String,
         telefone: String,
         aoSucesso: (ResultadoCadastro) -> Unit,
-        aoError: (String) -> Unit,
+        aoErro: (String) -> Unit,
     ) {
         val nomeLimpo = nome.trim()
         val emailLimpo = email.trim()
         val telefoneLimpo = telefone.trim()
-
-        if (nomeLimpo.isBlank()) {
-            aoError("Digite seu nome.")
-            return
-        }
 
         autenticacao
             .createUserWithEmailAndPassword(
@@ -40,15 +35,23 @@ class ServicoCadastroFirebase {
                 val usuario = authResult.user
 
                 if (usuario == null) {
-                    aoError("Usuário não encontrado.")
+                    aoErro("Usuário não encontrado.")
                     return@addOnSuccessListener
                 }
 
                 val uid = usuario.uid
                 val emailUsuario = usuario.email ?: emailLimpo
 
+                val perfil =
+                    UserProfileChangeRequest
+                        .Builder()
+                        .setDisplayName(nomeLimpo)
+                        .build()
+
+                usuario.updateProfile(perfil)
+
                 val dados =
-                    hashMapOf<String, Any>(
+                    hashMapOf(
                         "uid" to uid,
                         "nome" to nomeLimpo,
                         "email" to emailUsuario,
@@ -61,34 +64,26 @@ class ServicoCadastroFirebase {
                     .document(uid)
                     .set(dados)
                     .addOnSuccessListener {
-                        val perfil =
-                            UserProfileChangeRequest
-                                .Builder()
-                                .setDisplayName(nomeLimpo)
-                                .build()
+                        autenticacao.signOut()
 
-                        usuario
-                            .updateProfile(perfil)
-                            .addOnCompleteListener {
-                                autenticacao.signOut()
-
-                                aoSucesso(
-                                    ResultadoCadastro(
-                                        uid = uid,
-                                        nome = nomeLimpo,
-                                        email = emailUsuario,
-                                        telefone = telefoneLimpo,
-                                    ),
-                                )
-                            }
+                        aoSucesso(
+                            ResultadoCadastro(
+                                uid = uid,
+                                nome = nomeLimpo,
+                                email = emailUsuario,
+                                telefone = telefoneLimpo,
+                            ),
+                        )
                     }.addOnFailureListener { exception ->
-                        aoError(
+                        autenticacao.signOut()
+
+                        aoErro(
                             exception.message
                                 ?: "Erro ao salvar dados do usuário.",
                         )
                     }
             }.addOnFailureListener { exception ->
-                aoError(
+                aoErro(
                     exception.message
                         ?: "Erro ao cadastrar usuário.",
                 )
