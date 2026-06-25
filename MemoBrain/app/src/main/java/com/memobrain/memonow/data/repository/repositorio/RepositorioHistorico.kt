@@ -23,6 +23,7 @@ class RepositorioHistorico(
         arquivoTitulo: String,
         arquivoDescricao: String,
         metodo: String,
+        aoSucesso: () -> Unit = {},
         aoErro: (String) -> Unit = {},
     ) {
         fonteDadosFirestore.registrarAtividade(
@@ -32,6 +33,7 @@ class RepositorioHistorico(
             arquivoTitulo = arquivoTitulo,
             arquivoDescricao = arquivoDescricao,
             metodo = metodo,
+            aoSucesso = aoSucesso,
             aoErro = aoErro,
         )
     }
