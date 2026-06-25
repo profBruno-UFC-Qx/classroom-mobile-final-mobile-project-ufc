@@ -392,7 +392,7 @@ fun RegistrarTela(
                                     carregando = false
                                     onCadastroSucesso()
                                 },
-                                aoError = { erro ->
+                                aoErro = { erro ->
                                     carregando = false
                                     mensagemCadastro = erro
                                 },
