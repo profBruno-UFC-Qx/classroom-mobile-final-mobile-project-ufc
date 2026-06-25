@@ -65,13 +65,17 @@ data class Caderno(
 fun ListaCadernosTela(
     modifier: Modifier = Modifier,
     onIrParaInicio: () -> Unit = {},
+    onIrParaPerfil: () -> Unit = {},
     onCadernoClick: (Caderno) -> Unit = {},
     onEditarClick: (String) -> Unit = {},
     onNovoCadernoClick: () -> Unit = {},
     viewModel: CadernosViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var tabSelecionada by remember { mutableIntStateOf(0) }
+
+    var tabSelecionada by remember {
+        mutableIntStateOf(0)
+    }
 
     Scaffold(
         modifier = modifier,
@@ -85,17 +89,28 @@ fun ListaCadernosTela(
                         color = Color(0xFF1A2536),
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF6F8FB),
-                ),
+                colors =
+                    TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color(0xFFF6F8FB),
+                    ),
             )
         },
         bottomBar = {
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.CADERNOS,
                 onAbaClick = { aba ->
-                    if (aba == AbaMenu.INICIO) {
-                        onIrParaInicio()
+                    when (aba) {
+                        AbaMenu.INICIO -> {
+                            onIrParaInicio()
+                        }
+
+                        AbaMenu.PERFIL -> {
+                            onIrParaPerfil()
+                        }
+
+                        else -> {
+                            Unit
+                        }
                     }
                 },
             )
@@ -103,10 +118,11 @@ fun ListaCadernosTela(
         containerColor = Color(0xFFF6F8FB),
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
         ) {
             TabSelector(
                 selecionado = tabSelecionada,
@@ -119,9 +135,10 @@ fun ListaCadernosTela(
             when {
                 uiState.isLoading -> {
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(
@@ -132,9 +149,10 @@ fun ListaCadernosTela(
 
                 uiState.mensagemErro != null -> {
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -147,9 +165,10 @@ fun ListaCadernosTela(
 
                 uiState.listaCadernos.isEmpty() -> {
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -162,9 +181,10 @@ fun ListaCadernosTela(
 
                 else -> {
                     LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(bottom = 24.dp),
                     ) {
@@ -190,12 +210,14 @@ fun ListaCadernosTela(
 
             Button(
                 onClick = onNovoCadernoClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF22496E),
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF22496E),
+                    ),
                 shape = RoundedCornerShape(28.dp),
             ) {
                 Text(
@@ -218,47 +240,55 @@ fun TabSelector(
     onTabSelected: (Int) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(
-                color = Color(0xFFF1F3F5),
-                shape = RoundedCornerShape(24.dp),
-            )
-            .padding(4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(
+                    color = Color(0xFFF1F3F5),
+                    shape = RoundedCornerShape(24.dp),
+                ).padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        listOf("Meus ($quantidadeMeus)", "Públicos")
-            .forEachIndexed { index, texto ->
-                val estaSelecionada = selecionado == index
+        listOf(
+            "Meus ($quantidadeMeus)",
+            "Públicos",
+        ).forEachIndexed { index, texto ->
+            val estaSelecionada = selecionado == index
 
-                Button(
-                    onClick = { onTabSelected(index) },
-                    modifier = Modifier
+            Button(
+                onClick = {
+                    onTabSelected(index)
+                },
+                modifier =
+                    Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (estaSelecionada) {
-                            Color.White
-                        } else {
-                            Color.Transparent
-                        },
-                        contentColor = if (estaSelecionada) {
-                            Color(0xFF1A2536)
-                        } else {
-                            Color(0xFF6C757D)
-                        },
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor =
+                            if (estaSelecionada) {
+                                Color.White
+                            } else {
+                                Color.Transparent
+                            },
+                        contentColor =
+                            if (estaSelecionada) {
+                                Color(0xFF1A2536)
+                            } else {
+                                Color(0xFF6C757D)
+                            },
                     ),
-                    shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(0.dp),
-                ) {
-                    Text(
-                        text = texto,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text(
+                    text = texto,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                )
             }
+        }
     }
 }
 
@@ -269,16 +299,21 @@ fun CardCaderno(
     onEditarClick: () -> Unit = {},
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onClick()
+                },
+        colors =
+            CardDefaults.cardColors(
+                containerColor = Color.White,
+            ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp,
-        ),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = 1.dp,
+            ),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -288,18 +323,20 @@ fun CardCaderno(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            color = Color(0xFFE6F4F1),
-                            shape = RoundedCornerShape(12.dp),
-                        ),
+                    modifier =
+                        Modifier
+                            .size(48.dp)
+                            .background(
+                                color = Color(0xFFE6F4F1),
+                                shape = RoundedCornerShape(12.dp),
+                            ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Image(
-                        painter = painterResource(
-                            id = R.drawable.ic_livro_caderno,
-                        ),
+                        painter =
+                            painterResource(
+                                id = R.drawable.ic_livro_caderno,
+                            ),
                         contentDescription = "Caderno",
                         modifier = Modifier.size(22.dp),
                     )
@@ -320,9 +357,10 @@ fun CardCaderno(
                     )
 
                     Text(
-                        text = caderno.descricao.ifBlank {
-                            "Sem descrição"
-                        },
+                        text =
+                            caderno.descricao.ifBlank {
+                                "Sem descrição"
+                            },
                         fontSize = 12.sp,
                         color = Color(0xFF9EA8B6),
                         maxLines = 1,
@@ -330,7 +368,9 @@ fun CardCaderno(
                     )
                 }
 
-                IconButton(onClick = onEditarClick) {
+                IconButton(
+                    onClick = onEditarClick,
+                ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar caderno",
@@ -361,21 +401,24 @@ fun CardCaderno(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            val total = (
+            val total =
+                (
                     caderno.revisados + caderno.restantes
-                    ).toFloat()
+                ).toFloat()
 
-            val progresso = if (total > 0f) {
-                caderno.revisados / total
-            } else {
-                0f
-            }
+            val progresso =
+                if (total > 0f) {
+                    caderno.revisados / total
+                } else {
+                    0f
+                }
 
             LinearProgressIndicator(
                 progress = { progresso },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(6.dp),
                 color = Color(0xFF4FA393),
                 trackColor = Color(0xFFE9ECEF),
                 strokeCap = StrokeCap.Round,
