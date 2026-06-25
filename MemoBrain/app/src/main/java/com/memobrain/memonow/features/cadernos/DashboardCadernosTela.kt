@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.memobrain.memonow.R
 
 data class MetodoEstudo(
@@ -76,8 +78,15 @@ fun DashboardCadernosTela(
     onIrParaCadernos: () -> Unit = {},
     onIrParaPerfil: () -> Unit = {},
     onMetodoClick: (String) -> Unit = {},
-    viewModel: HomeViewModel = viewModel(),
 ) {
+    val usuarioId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+
+    val viewModel: HomeViewModel = viewModel()
+
+    LaunchedEffect(usuarioId) {
+        viewModel.carregarDadosDoUsuario(usuarioId)
+    }
+
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -155,16 +164,23 @@ fun DashboardCadernosTela(
                 }
             }
 
-            if (uiState.cadernosEmAndamento.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-                SectionHeader(
-                    titulo = "Cadernos em andamento",
-                    onVerMaisClick = onIrParaCadernos,
+            SectionHeader(
+                titulo = "Cadernos em andamento",
+                onVerMaisClick = onIrParaCadernos,
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            if (uiState.cadernosEmAndamento.isEmpty()) {
+                Text(
+                    text = "Nenhum caderno cadastrado ainda.",
+                    fontSize = 13.sp,
+                    color = Color(0xFF8A94A6),
+                    modifier = Modifier.padding(vertical = 8.dp),
                 )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
+            } else {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,17 +206,26 @@ fun DashboardCadernosTela(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                uiState.atividadesRecentes
-                    .take(5)
-                    .forEach { atividade ->
-                        CardAtividadeRecente(
-                            atividade = atividade,
-                        )
-                    }
+            if (uiState.atividadesRecentes.isEmpty()) {
+                Text(
+                    text = "Nenhuma atividade realizada ainda.",
+                    fontSize = 13.sp,
+                    color = Color(0xFF8A94A6),
+                    modifier = Modifier.padding(vertical = 8.dp),
+                )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    uiState.atividadesRecentes
+                        .take(5)
+                        .forEach { atividade ->
+                            CardAtividadeRecente(
+                                atividade = atividade,
+                            )
+                        }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -655,3 +680,4 @@ private fun limitarTituloCaderno(
 fun DashboardCadernosTelaPreview() {
     DashboardCadernosTela()
 }
+
