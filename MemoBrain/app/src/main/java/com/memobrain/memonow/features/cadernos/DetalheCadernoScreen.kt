@@ -1,5 +1,6 @@
 package com.memobrain.memonow.features.cadernos
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,11 +19,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.memobrain.memonow.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -253,11 +256,13 @@ fun CardTopicoItem(
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = "Doc",
-                    fontSize = 14.sp,
-                    color = Color(0xFF718096),
-                    fontWeight = FontWeight.Bold,
+                Image(
+                    painter =
+                        painterResource(
+                            id = R.drawable.ic_livro_caderno,
+                        ),
+                    contentDescription = "Arquivo",
+                    modifier = Modifier.size(22.dp),
                 )
             }
 
