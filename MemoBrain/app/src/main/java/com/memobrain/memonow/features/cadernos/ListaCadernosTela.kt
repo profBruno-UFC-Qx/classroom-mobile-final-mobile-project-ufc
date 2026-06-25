@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.memobrain.memonow.R
 
 data class Caderno(
@@ -69,8 +71,23 @@ fun ListaCadernosTela(
     onCadernoClick: (Caderno) -> Unit = {},
     onEditarClick: (String) -> Unit = {},
     onNovoCadernoClick: () -> Unit = {},
-    viewModel: CadernosViewModel = viewModel(),
 ) {
+    val usuarioId =
+        FirebaseAuth
+            .getInstance()
+            .currentUser
+            ?.uid
+            .orEmpty()
+
+    val viewModel: CadernosViewModel =
+        viewModel(
+            key = "cadernos_$usuarioId",
+        )
+
+    LaunchedEffect(usuarioId) {
+        viewModel.carregarDadosDoUsuario(usuarioId)
+    }
+
     val uiState by viewModel.uiState.collectAsState()
 
     var tabSelecionada by remember {
@@ -100,17 +117,9 @@ fun ListaCadernosTela(
                 abaSelecionada = AbaMenu.CADERNOS,
                 onAbaClick = { aba ->
                     when (aba) {
-                        AbaMenu.INICIO -> {
-                            onIrParaInicio()
-                        }
-
-                        AbaMenu.PERFIL -> {
-                            onIrParaPerfil()
-                        }
-
-                        else -> {
-                            Unit
-                        }
+                        AbaMenu.INICIO -> onIrParaInicio()
+                        AbaMenu.PERFIL -> onIrParaPerfil()
+                        else -> Unit
                     }
                 },
             )
@@ -335,7 +344,7 @@ fun CardCaderno(
                     Image(
                         painter =
                             painterResource(
-                                id = R.drawable.ic_livro_caderno,
+                                id = R.drawable.ic_caderno_especifico,
                             ),
                         contentDescription = "Caderno",
                         modifier = Modifier.size(22.dp),
