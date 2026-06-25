@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 
 data class CadernosUiState(
     val listaCadernos: List<Caderno> = emptyList(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val mensagemErro: String? = null,
 )
 
@@ -18,27 +18,44 @@ class CadernosViewModel : ViewModel() {
     private val repositorioCaderno = RepositorioCaderno()
 
     private var listenerCadernos: ListenerRegistration? = null
+    private var usuarioIdAtual: String? = null
 
     private val _uiState = MutableStateFlow(CadernosUiState())
+
     val uiState: StateFlow<CadernosUiState> = _uiState.asStateFlow()
 
-    init {
-        carregarCadernos()
-    }
+    fun carregarDadosDoUsuario(usuarioId: String?) {
+        if (
+            usuarioId == usuarioIdAtual &&
+            listenerCadernos != null
+        ) {
+            return
+        }
 
-    private fun carregarCadernos() {
+        usuarioIdAtual = usuarioId
+
         listenerCadernos?.remove()
+        listenerCadernos = null
 
         _uiState.update {
             it.copy(
-                isLoading = true,
+                listaCadernos = emptyList(),
+                isLoading = !usuarioId.isNullOrBlank(),
                 mensagemErro = null,
             )
+        }
+
+        if (usuarioId.isNullOrBlank()) {
+            return
         }
 
         listenerCadernos =
             repositorioCaderno.observarCadernosDoUsuario(
                 aoAtualizar = { cadernos ->
+                    if (usuarioId != usuarioIdAtual) {
+                        return@observarCadernosDoUsuario
+                    }
+
                     _uiState.update {
                         it.copy(
                             listaCadernos = cadernos,
@@ -48,8 +65,13 @@ class CadernosViewModel : ViewModel() {
                     }
                 },
                 aoErro = { erro ->
+                    if (usuarioId != usuarioIdAtual) {
+                        return@observarCadernosDoUsuario
+                    }
+
                     _uiState.update {
                         it.copy(
+                            listaCadernos = emptyList(),
                             isLoading = false,
                             mensagemErro = erro,
                         )
