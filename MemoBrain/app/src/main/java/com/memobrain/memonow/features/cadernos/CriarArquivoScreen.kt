@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +82,7 @@ fun CriarArquivoScreen(
                         text = "Novo Arquivo",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2D3748),
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 },
                 navigationIcon = {
@@ -92,17 +93,17 @@ fun CriarArquivoScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar",
-                            tint = Color(0xFF2D3748),
+                            tint = MaterialTheme.colorScheme.onBackground,
                         )
                     }
                 },
                 colors =
                     TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFFF8F9FA),
+                        containerColor = MaterialTheme.colorScheme.background,
                     ),
             )
         },
-        containerColor = Color(0xFFF8F9FA),
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(
             modifier =
@@ -117,7 +118,7 @@ fun CriarArquivoScreen(
                 text = "Título do Arquivo",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF2D3748),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             OutlinedTextField(
@@ -132,22 +133,22 @@ fun CriarArquivoScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color(0xFF1E466B),
-                        unfocusedBorderColor = Color(0xFFCBD5E1),
-                        focusedTextColor = Color(0xFF2D3748),
-                        unfocusedTextColor = Color(0xFF2D3748),
-                        focusedPlaceholderColor = Color(0xFFA0AEC0),
-                        unfocusedPlaceholderColor = Color(0xFFA0AEC0),
-                        cursorColor = Color(0xFF1E466B),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary,
                     ),
             )
 
             Text(
                 text = "Descrição (opcional)",
                 fontSize = 14.sp,
-                color = Color(0xFF718096),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             OutlinedTextField(
@@ -165,15 +166,15 @@ fun CriarArquivoScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color(0xFF1E466B),
-                        unfocusedBorderColor = Color(0xFFCBD5E1),
-                        focusedTextColor = Color(0xFF2D3748),
-                        unfocusedTextColor = Color(0xFF2D3748),
-                        focusedPlaceholderColor = Color(0xFFA0AEC0),
-                        unfocusedPlaceholderColor = Color(0xFFA0AEC0),
-                        cursorColor = Color(0xFF1E466B),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary,
                     ),
             )
 
@@ -181,7 +182,7 @@ fun CriarArquivoScreen(
                 text = "Método de Estudo",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF2D3748),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Box(
@@ -191,10 +192,10 @@ fun CriarArquivoScreen(
                         .height(100.dp)
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFCBD5E1),
+                            color = MaterialTheme.colorScheme.outline,
                             shape = RoundedCornerShape(12.dp),
                         ).background(
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(12.dp),
                         ).clickable(
                             enabled = !state.isSalvando,
@@ -212,9 +213,9 @@ fun CriarArquivoScreen(
                                 ?: "Selecione o método de estudo",
                         color =
                             if (state.metodoSelecionado != null) {
-                                Color(0xFF1E466B)
+                                MaterialTheme.colorScheme.primary
                             } else {
-                                Color(0xFFA0AEC0)
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             },
                         fontWeight =
                             if (state.metodoSelecionado != null) {
@@ -233,13 +234,13 @@ fun CriarArquivoScreen(
                                 Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFF1E466B)),
+                                    .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Selecionar método",
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(16.dp),
                             )
                         }
@@ -250,7 +251,7 @@ fun CriarArquivoScreen(
             state.mensagemErro?.let { erro ->
                 Text(
                     text = erro,
-                    color = Color(0xFFD32F2F),
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 13.sp,
                 )
             }
@@ -258,7 +259,7 @@ fun CriarArquivoScreen(
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 4.dp),
                 thickness = 1.dp,
-                color = Color(0xFFE2E8F0),
+                color = MaterialTheme.colorScheme.outlineVariant,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -276,13 +277,13 @@ fun CriarArquivoScreen(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE2E8F0),
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         ),
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     Text(
                         text = "CANCELAR",
-                        color = Color(0xFF718096),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -301,14 +302,14 @@ fun CriarArquivoScreen(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1E466B),
+                            containerColor = MaterialTheme.colorScheme.primary,
                         ),
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     if (state.isSalvando) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp,
                         )
 
@@ -316,13 +317,13 @@ fun CriarArquivoScreen(
 
                         Text(
                             text = "SALVANDO",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold,
                         )
                     } else {
                         Text(
                             text = "SALVAR",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -337,7 +338,7 @@ fun CriarArquivoScreen(
                 viewModel.setMostrarBottomSheet(false)
             },
             sheetState = sheetState,
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier =
@@ -351,7 +352,7 @@ fun CriarArquivoScreen(
                     text = "Métodos de Estudo",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2D3748),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 viewModel.listaMetodos.forEach { metodo ->
@@ -364,7 +365,7 @@ fun CriarArquivoScreen(
                                 },
                         colors =
                             CardDefaults.cardColors(
-                                containerColor = Color(0xFFF7FAFC),
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             ),
                         shape = RoundedCornerShape(12.dp),
                     ) {
@@ -377,7 +378,7 @@ fun CriarArquivoScreen(
                                     Modifier
                                         .size(40.dp)
                                         .background(
-                                            color = Color(0xFFE2E8F0),
+                                            color = MaterialTheme.colorScheme.background,
                                             shape = RoundedCornerShape(8.dp),
                                         ),
                                 contentAlignment = Alignment.Center,
@@ -398,7 +399,7 @@ fun CriarArquivoScreen(
                                 text = metodo.titulo,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF2D3748),
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }

@@ -28,20 +28,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -123,7 +123,7 @@ fun ConfigTela(
     )
 
     Scaffold(
-        containerColor = Color(0xFFF8F9FA),
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             MenuInferiorMemonow(
                 abaSelecionada = AbaMenu.PERFIL,
@@ -148,7 +148,7 @@ fun ConfigTela(
                 text = "Minha Conta",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 16.dp),
             )
 
@@ -174,18 +174,19 @@ fun ConfigTela(
                         text = nomeUsuario,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
 
                     Text(
                         text = contaCriadaEm,
                         fontSize = 14.sp,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
                     Text(
                         text = "Free",
                         fontSize = 13.sp,
-                        color = Color(0xFF70A19F),
+                        color = MaterialTheme.colorScheme.secondary,
                         fontWeight = FontWeight.Medium,
                     )
                 }
@@ -195,13 +196,14 @@ fun ConfigTela(
                 text = "Configurações",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
 
             Card(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -209,9 +211,9 @@ fun ConfigTela(
             ) {
                 Column {
                     ConfigItem("Configurações da conta")
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     ConfigItem("Configurar notificações")
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     ConfigItem("Planos")
                 }
             }
@@ -220,13 +222,14 @@ fun ConfigTela(
                 text = "Outros",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
 
             Card(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -234,9 +237,9 @@ fun ConfigTela(
             ) {
                 Column {
                     ConfigItem("Privacidade e confidencialidade")
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     ConfigItem("Sobre o app")
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     ConfigItem("Ajuda")
                 }
             }
@@ -244,7 +247,7 @@ fun ConfigTela(
             mensagemErro?.let { erro ->
                 Text(
                     text = erro,
-                    color = Color(0xFFD32F2F),
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 13.sp,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -261,10 +264,10 @@ fun ConfigTela(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 1.dp,
-                    color = Color(0xFF334155),
+                    color = MaterialTheme.colorScheme.outline,
                 ),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF2B4674),
+                    contentColor = MaterialTheme.colorScheme.error,
                 ),
             ) {
                 Icon(
@@ -290,21 +293,18 @@ fun ConfigTela(
                     .height(50.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFC75A43),
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 ),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                     contentDescription = null,
-                    tint = Color.White,
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Text(
-                    text = "Sair",
-                    color = Color.White,
-                )
+                Text(text = "Sair")
             }
         }
     }
@@ -352,7 +352,8 @@ fun ConfigTela(
                     },
                     enabled = !estaExcluindo,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFC75A43),
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
                     ),
                 ) {
                     Text(
@@ -396,13 +397,13 @@ private fun ConfigItem(
         Text(
             text = title,
             fontSize = 15.sp,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = null,
-            tint = Color.LightGray,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp),
         )
     }

@@ -175,6 +175,7 @@ class HomeViewModel : ViewModel() {
                                         CadernoAndamento(
                                             id = caderno.id,
                                             titulo = caderno.titulo,
+                                            capaUrl = caderno.capaUrl
                                         )
                                     },
                             isLoading = false,

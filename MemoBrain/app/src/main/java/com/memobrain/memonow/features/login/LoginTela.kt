@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -63,7 +64,7 @@ fun LoginTela(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFEEF0F3),
+        color = MaterialTheme.colorScheme.background,
     ) {
         Column(
             modifier =
@@ -87,7 +88,7 @@ fun LoginTela(
                 text = "MemoBrain",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF2C2F36),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -95,7 +96,7 @@ fun LoginTela(
             Text(
                 text = "E-mail",
                 fontSize = 15.sp,
-                color = Color(0xFF475569),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -111,7 +112,7 @@ fun LoginTela(
                 placeholder = {
                     Text(
                         text = "Digite seu e-mail",
-                        color = Color(0xFFA9AFB7),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         fontSize = 14.sp,
                     )
                 },
@@ -122,18 +123,20 @@ fun LoginTela(
                     erroEmail?.let {
                         Text(
                             text = it,
-                            color = Color(0xFFD32F2F),
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                         )
                     }
                 },
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = if (erroEmail != null) Color(0xFFD32F2F) else Color.Transparent,
-                        unfocusedBorderColor = if (erroEmail != null) Color(0xFFD32F2F) else Color.Transparent,
-                        cursorColor = Color(0xFF2C2F36),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = if (erroEmail != null) MaterialTheme.colorScheme.error else Color.Transparent,
+                        unfocusedBorderColor = if (erroEmail != null) MaterialTheme.colorScheme.error else Color.Transparent,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
                     ),
             )
 
@@ -141,7 +144,7 @@ fun LoginTela(
             Text(
                 text = "Senha",
                 fontSize = 15.sp,
-                color = Color(0xFF475569),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -157,7 +160,7 @@ fun LoginTela(
                 placeholder = {
                     Text(
                         text = "Digite sua senha",
-                        color = Color(0xFFA9AFB7),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         fontSize = 14.sp,
                     )
                 },
@@ -168,7 +171,7 @@ fun LoginTela(
                     erroSenha?.let {
                         Text(
                             text = it,
-                            color = Color(0xFFD32F2F),
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                         )
                     }
@@ -176,11 +179,13 @@ fun LoginTela(
                 visualTransformation = PasswordVisualTransformation(),
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = if (erroSenha != null) Color(0xFFD32F2F) else Color.Transparent,
-                        unfocusedBorderColor = if (erroSenha != null) Color(0xFFD32F2F) else Color.Transparent,
-                        cursorColor = Color(0xFF2C2F36),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = if (erroSenha != null) MaterialTheme.colorScheme.error else Color.Transparent,
+                        unfocusedBorderColor = if (erroSenha != null) MaterialTheme.colorScheme.error else Color.Transparent,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
                     ),
             )
 
@@ -190,7 +195,7 @@ fun LoginTela(
                 text = "Esqueci a senha?",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
-                color = Color(0xFFC3C7CD),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
             )
 
@@ -238,10 +243,10 @@ fun LoginTela(
                 enabled = !carregando,
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF234E70),
-                        contentColor = Color.White,
-                        disabledContainerColor = Color(0xFF3A6F98),
-                        disabledContentColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                 modifier =
                     Modifier
@@ -251,7 +256,6 @@ fun LoginTela(
             ) {
                 Text(
                     text = "Entrar",
-                    color = Color.White,
                     fontSize = 15.sp,
                 )
             }
@@ -261,7 +265,7 @@ fun LoginTela(
             if (mensagemLogin.isNotEmpty()) {
                 Text(
                     text = mensagemLogin,
-                    color = Color(0xFF2C2F36),
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 13.sp,
                 )
             }
@@ -274,19 +278,19 @@ fun LoginTela(
             ) {
                 HorizontalDivider(
                     modifier = Modifier.weight(1f),
-                    color = Color(0xFFD9DDE2),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                 )
 
                 Text(
                     text = "ou continue com",
-                    color = Color(0xFFC3C7CD),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(horizontal = 12.dp),
                 )
 
                 HorizontalDivider(
                     modifier = Modifier.weight(1f),
-                    color = Color(0xFFD9DDE2),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
 
@@ -307,20 +311,20 @@ fun LoginTela(
 
             Text(
                 text = "Se você não tem uma conta",
-                color = Color(0xFFA9AFB7),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp,
             )
 
             Row {
                 Text(
                     text = "você pode ",
-                    color = Color(0xFFA9AFB7),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                 )
 
                 Text(
                     text = "Registrar aqui",
-                    color = Color(0xFF2A5A82),
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 13.sp,
                     modifier = Modifier.clickable { registrar() },
                 )
@@ -339,7 +343,7 @@ fun BotaoSocial(
             Modifier
                 .width(86.dp)
                 .height(52.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 6.dp,
     ) {

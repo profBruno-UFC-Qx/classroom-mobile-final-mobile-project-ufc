@@ -37,6 +37,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -97,10 +98,11 @@ fun RevisarArquivoScreen(
             skipPartiallyExpanded = true,
         )
 
-    val corAtiva = Color(0xFF2A9D8F)
-    val corAcerto = Color(0xFF1DBF84)
-    val corErro = Color(0xFFFF5A5F)
-    val corFundo = Color(0xFFF7FAFC)
+    // Cores baseadas no MaterialTheme ou mantendo feedbacks lógicos padrão (Acerto/Erro)
+    val corAtiva = MaterialTheme.colorScheme.primary
+    val corAcerto = Color(0xFF1DBF84) // Verde feedback
+    val corErro = Color(0xFFFF5A5F)   // Vermelho feedback
+    val corFundo = MaterialTheme.colorScheme.background
 
     LaunchedEffect(cadernoId, arquivoId) {
         viewModel.carregarConteudos(
@@ -151,7 +153,7 @@ fun RevisarArquivoScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Voltar",
-                                tint = Color(0xFF1A2536),
+                                tint = MaterialTheme.colorScheme.onBackground,
                             )
                         }
 
@@ -166,7 +168,7 @@ fun RevisarArquivoScreen(
                             textAlign = TextAlign.Center,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2A5222),
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
 
@@ -182,7 +184,7 @@ fun RevisarArquivoScreen(
                         ) {
                             Text(
                                 text = "Nenhum conteúdo cadastrado neste arquivo.",
-                                color = Color(0xFF718096),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp,
                             )
 
@@ -250,7 +252,7 @@ fun RevisarArquivoScreen(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Fechar",
-                                tint = Color(0xFF1A2536),
+                                tint = MaterialTheme.colorScheme.onBackground,
                             )
                         }
 
@@ -267,7 +269,7 @@ fun RevisarArquivoScreen(
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF2A5222),
+                                color = MaterialTheme.colorScheme.primary,
                             )
 
                             Text(
@@ -282,7 +284,7 @@ fun RevisarArquivoScreen(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 12.sp,
-                                color = Color(0xFF718096),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -297,6 +299,7 @@ fun RevisarArquivoScreen(
                             text = state.numeroQuestao,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground,
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -309,7 +312,7 @@ fun RevisarArquivoScreen(
                                     .height(8.dp)
                                     .clip(CircleShape),
                             color = corAtiva,
-                            trackColor = Color(0xFFE0F2F1),
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -317,7 +320,7 @@ fun RevisarArquivoScreen(
                         Text(
                             text = state.porcentagem,
                             fontSize = 12.sp,
-                            color = Color(0xFF718096),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -327,7 +330,7 @@ fun RevisarArquivoScreen(
                         text = "PERGUNTA",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF718096),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -336,7 +339,7 @@ fun RevisarArquivoScreen(
                         text = conteudo?.pergunta.orEmpty(),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF2D3748),
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
 
                     Spacer(modifier = Modifier.height(28.dp))
@@ -346,7 +349,7 @@ fun RevisarArquivoScreen(
                             text = "SUA RESPOSTA",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF718096),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -365,8 +368,12 @@ fun RevisarArquivoScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors =
                                 OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                                     focusedBorderColor = corAtiva,
-                                    unfocusedBorderColor = Color(0xFFCBD5E1),
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                                     cursorColor = corAtiva,
                                 ),
                         )
@@ -380,7 +387,7 @@ fun RevisarArquivoScreen(
                                     !state.respondeu && selecionada -> corAtiva
                                     state.respondeu && correta -> corAcerto
                                     state.respondeu && selecionada && !correta -> corErro
-                                    else -> Color(0xFFE2E8F0)
+                                    else -> MaterialTheme.colorScheme.outline
                                 }
 
                             val corTexto =
@@ -388,7 +395,7 @@ fun RevisarArquivoScreen(
                                     state.respondeu && selecionada && !correta -> corErro
                                     state.respondeu && correta -> corAcerto
                                     selecionada -> corAtiva
-                                    else -> Color(0xFF4A5568)
+                                    else -> MaterialTheme.colorScheme.onSurface
                                 }
 
                             Card(
@@ -404,7 +411,7 @@ fun RevisarArquivoScreen(
                                 shape = RoundedCornerShape(12.dp),
                                 colors =
                                     CardDefaults.cardColors(
-                                        containerColor = Color.White,
+                                        containerColor = MaterialTheme.colorScheme.surface,
                                     ),
                                 border =
                                     BorderStroke(
@@ -419,12 +426,12 @@ fun RevisarArquivoScreen(
                                     RadioButton(
                                         selected =
                                             selecionada ||
-                                                (state.respondeu && correta),
+                                                    (state.respondeu && correta),
                                         onClick = null,
                                         colors =
                                             RadioButtonDefaults.colors(
                                                 selectedColor = corTexto,
-                                                unselectedColor = Color(0xFFCBD5E1),
+                                                unselectedColor = MaterialTheme.colorScheme.outline,
                                             ),
                                     )
 
@@ -461,14 +468,14 @@ fun RevisarArquivoScreen(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Editar",
                                 modifier = Modifier.size(16.dp),
-                                tint = Color.Gray,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
 
                             Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
                                 text = "Editar",
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
 
@@ -481,14 +488,14 @@ fun RevisarArquivoScreen(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Deletar",
                                 modifier = Modifier.size(16.dp),
-                                tint = Color.Gray,
+                                tint = MaterialTheme.colorScheme.error,
                             )
 
                             Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
                                 text = "Deletar",
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
 
@@ -501,14 +508,14 @@ fun RevisarArquivoScreen(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Adicionar",
                                 modifier = Modifier.size(16.dp),
-                                tint = Color(0xFF1A2536),
+                                tint = MaterialTheme.colorScheme.onBackground,
                             )
 
                             Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
                                 text = "Adicionar",
-                                color = Color(0xFF1A2536),
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
@@ -527,8 +534,8 @@ fun RevisarArquivoScreen(
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = corAtiva,
-                                    disabledContainerColor = Color(0xFFDCE5E7),
-                                    disabledContentColor = Color.White,
+                                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 ),
                             shape = RoundedCornerShape(25.dp),
                         ) {
@@ -539,7 +546,7 @@ fun RevisarArquivoScreen(
                                     } else {
                                         "CONFIRMAR"
                                     },
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
@@ -551,7 +558,7 @@ fun RevisarArquivoScreen(
                         Text(
                             text = erro,
                             fontSize = 13.sp,
-                            color = Color(0xFFD32F2F),
+                            color = MaterialTheme.colorScheme.error,
                         )
                     }
                 }
@@ -601,7 +608,7 @@ fun RevisarArquivoScreen(
                 mostrarMetodos = false
             },
             sheetState = sheetState,
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier =
@@ -615,7 +622,7 @@ fun RevisarArquivoScreen(
                     text = "Métodos de Estudo",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2D3748),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 MetodoEscolhaItem(
@@ -647,26 +654,9 @@ private fun PainelFeedback(
     temProximo: Boolean,
     onContinuar: () -> Unit,
 ) {
-    val corFeedback =
-        if (acertou) {
-            Color(0xFF1DBF84)
-        } else {
-            Color(0xFFFF5A5F)
-        }
-
-    val titulo =
-        if (acertou) {
-            "Mandou bem!"
-        } else {
-            "Quase!"
-        }
-
-    val mensagem =
-        if (acertou) {
-            "Parabéns pela resposta correta!"
-        } else {
-            "Resposta correta: $respostaCorreta"
-        }
+    val corFeedback = if (acertou) Color(0xFF1DBF84) else Color(0xFFFF5A5F)
+    val titulo = if (acertou) "Mandou bem!" else "Quase!"
+    val mensagem = if (acertou) "Parabéns pela resposta correta!" else "Resposta correta: $respostaCorreta"
 
     Column(
         modifier =
@@ -735,12 +725,7 @@ private fun PainelFeedback(
             shape = RoundedCornerShape(24.dp),
         ) {
             Text(
-                text =
-                    if (temProximo) {
-                        "Continuar"
-                    } else {
-                        "Finalizado"
-                    },
+                text = if (temProximo) "Continuar" else "Finalizado",
                 color = corFeedback,
                 fontWeight = FontWeight.Bold,
             )
@@ -761,7 +746,7 @@ private fun MetodoEscolhaItem(
                 .clickable(onClick = onClick),
         colors =
             CardDefaults.cardColors(
-                containerColor = Color(0xFFF7FAFC),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
             ),
         shape = RoundedCornerShape(12.dp),
     ) {
@@ -774,7 +759,7 @@ private fun MetodoEscolhaItem(
                     Modifier
                         .size(40.dp)
                         .background(
-                            color = Color(0xFFE2E8F0),
+                            color = MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(8.dp),
                         ),
                 contentAlignment = Alignment.Center,
@@ -792,7 +777,7 @@ private fun MetodoEscolhaItem(
                 text = texto,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF2D3748),
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -816,7 +801,7 @@ private fun DialogConfirmacaoExcluirConteudo(
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(28.dp),
                     ).padding(
                         horizontal = 26.dp,
@@ -840,7 +825,7 @@ private fun DialogConfirmacaoExcluirConteudo(
                 fontSize = 22.sp,
                 lineHeight = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2F3941),
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
             )
 
@@ -849,7 +834,7 @@ private fun DialogConfirmacaoExcluirConteudo(
             Text(
                 text = "Esta ação não pode ser desfeita e o card será removido",
                 fontSize = 13.sp,
-                color = Color(0xFF6F7B86),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
 
@@ -867,14 +852,13 @@ private fun DialogConfirmacaoExcluirConteudo(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE6EDF2),
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                     shape = RoundedCornerShape(24.dp),
-                    elevation = null,
                 ) {
                     Text(
                         text = "Cancelar",
-                        color = Color(0xFF36414A),
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -887,14 +871,13 @@ private fun DialogConfirmacaoExcluirConteudo(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFB04452),
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
                         ),
                     shape = RoundedCornerShape(24.dp),
-                    elevation = null,
                 ) {
                     Text(
                         text = "Excluir",
-                        color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }

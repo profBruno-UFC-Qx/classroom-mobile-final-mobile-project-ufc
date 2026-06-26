@@ -31,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.memobrain.memonow.R
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 
 data class Caderno(
     val id: String = "",
@@ -60,6 +62,7 @@ data class Caderno(
     val descricao: String = "",
     val revisados: Int = 0,
     val restantes: Int = 0,
+    val capaUrl: String = ""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,12 +106,12 @@ fun ListaCadernosTela(
                         text = "Cadernos",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A2536),
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 },
                 colors =
                     TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFFF6F8FB),
+                        containerColor = MaterialTheme.colorScheme.background,
                     ),
             )
         },
@@ -124,7 +127,7 @@ fun ListaCadernosTela(
                 },
             )
         },
-        containerColor = Color(0xFFF6F8FB),
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         Column(
             modifier =
@@ -151,7 +154,7 @@ fun ListaCadernosTela(
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(
-                            color = Color(0xFF22496E),
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -166,7 +169,7 @@ fun ListaCadernosTela(
                     ) {
                         Text(
                             text = uiState.mensagemErro.orEmpty(),
-                            color = Color(0xFFD32F2F),
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 14.sp,
                         )
                     }
@@ -182,7 +185,7 @@ fun ListaCadernosTela(
                     ) {
                         Text(
                             text = "Nenhum caderno cadastrado.",
-                            color = Color(0xFF718096),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                         )
                     }
@@ -225,13 +228,13 @@ fun ListaCadernosTela(
                         .height(56.dp),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF22496E),
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 shape = RoundedCornerShape(28.dp),
             ) {
                 Text(
                     text = "NOVO CADERNO",
-                    color = Color.White,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
                 )
@@ -254,7 +257,7 @@ fun TabSelector(
                 .fillMaxWidth()
                 .height(48.dp)
                 .background(
-                    color = Color(0xFFF1F3F5),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(24.dp),
                 ).padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -277,15 +280,15 @@ fun TabSelector(
                     ButtonDefaults.buttonColors(
                         containerColor =
                             if (estaSelecionada) {
-                                Color.White
+                                MaterialTheme.colorScheme.surface
                             } else {
-                                Color.Transparent
+                                androidx.compose.ui.graphics.Color.Transparent
                             },
                         contentColor =
                             if (estaSelecionada) {
-                                Color(0xFF1A2536)
+                                MaterialTheme.colorScheme.onSurface
                             } else {
-                                Color(0xFF6C757D)
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             },
                     ),
                 shape = RoundedCornerShape(20.dp),
@@ -316,7 +319,7 @@ fun CardCaderno(
                 },
         colors =
             CardDefaults.cardColors(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
         shape = RoundedCornerShape(16.dp),
         elevation =
@@ -336,18 +339,25 @@ fun CardCaderno(
                         Modifier
                             .size(48.dp)
                             .background(
-                                color = Color(0xFFE6F4F1),
+                                color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(12.dp),
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
+                    // Carrega a foto da nuvem ou usa o ícone padrão
+                    val imagemPainter = if (caderno.capaUrl.isNotBlank()) {
+                        coil.compose.rememberAsyncImagePainter(model = caderno.capaUrl)
+                    } else {
+                        painterResource(id = R.drawable.ic_caderno_especifico)
+                    }
+
                     Image(
-                        painter =
-                            painterResource(
-                                id = R.drawable.ic_caderno_especifico,
-                            ),
-                        contentDescription = "Caderno",
-                        modifier = Modifier.size(22.dp),
+                        painter = imagemPainter,
+                        contentDescription = "Capa do caderno",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp)), // LIMPO AQUI!
+                        contentScale = if (caderno.capaUrl.isNotBlank()) ContentScale.Crop else ContentScale.Fit, // LIMPO AQUI!
                     )
                 }
 
@@ -360,7 +370,7 @@ fun CardCaderno(
                         text = caderno.titulo,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A2536),
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -371,7 +381,7 @@ fun CardCaderno(
                                 "Sem descrição"
                             },
                         fontSize = 12.sp,
-                        color = Color(0xFF9EA8B6),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -383,7 +393,7 @@ fun CardCaderno(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar caderno",
-                        tint = Color(0xFF9EA8B6),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -398,29 +408,20 @@ fun CardCaderno(
                 Text(
                     text = "${caderno.revisados} revisados",
                     fontSize = 11.sp,
-                    color = Color(0xFF6C757D),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Text(
                     text = "${caderno.restantes} restantes",
                     fontSize = 11.sp,
-                    color = Color(0xFF6C757D),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            val total =
-                (
-                    caderno.revisados + caderno.restantes
-                ).toFloat()
-
-            val progresso =
-                if (total > 0f) {
-                    caderno.revisados / total
-                } else {
-                    0f
-                }
+            val total = (caderno.revisados + caderno.restantes).toFloat()
+            val progresso = if (total > 0f) caderno.revisados / total else 0f
 
             LinearProgressIndicator(
                 progress = { progresso },
@@ -428,8 +429,8 @@ fun CardCaderno(
                     Modifier
                         .fillMaxWidth()
                         .height(6.dp),
-                color = Color(0xFF4FA393),
-                trackColor = Color(0xFFE9ECEF),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 strokeCap = StrokeCap.Round,
             )
         }

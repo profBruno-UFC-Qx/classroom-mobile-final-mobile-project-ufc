@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,10 +46,14 @@ import com.memobrain.memonow.R
 fun FlashcardSummaryScreen(viewModel: FlashcardSummaryViewModel) {
     val state by viewModel.state.collectAsState()
 
-    val corFundo = Color(0xFFF7FAFC)
-    val corProgresso = Color(0xFF55C6B9)
-    val corTitulo = Color(0xFF477A78)
-    val corBotao = Color(0xFF255980)
+    // Mapeamento dinâmico usando o MaterialTheme do projeto
+    val corFundo = MaterialTheme.colorScheme.background
+    val corProgresso = MaterialTheme.colorScheme.primary // ou secondary, dependendo do design do app
+    val corTrackProgresso = MaterialTheme.colorScheme.surfaceVariant
+    val corTitulo = MaterialTheme.colorScheme.onBackground
+    val corTextoSecundario = MaterialTheme.colorScheme.onSurfaceVariant
+    val corBotao = MaterialTheme.colorScheme.primary
+    val corTextoBotao = MaterialTheme.colorScheme.onPrimary
 
     Column(
         modifier =
@@ -69,7 +74,7 @@ fun FlashcardSummaryScreen(viewModel: FlashcardSummaryViewModel) {
                 text = state.questionNumber,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF6C7889),
+                color = corTextoSecundario,
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -82,7 +87,7 @@ fun FlashcardSummaryScreen(viewModel: FlashcardSummaryViewModel) {
                         .height(8.dp)
                         .clip(CircleShape),
                 color = corProgresso,
-                trackColor = Color(0xFFE1F1F0),
+                trackColor = corTrackProgresso,
             )
         }
 
@@ -181,12 +186,12 @@ fun FlashcardSummaryScreen(viewModel: FlashcardSummaryViewModel) {
                     colors =
                         ButtonDefaults.buttonColors(
                             containerColor = corBotao,
+                            contentColor = corTextoBotao
                         ),
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     Text(
                         text = "Fechar",
-                        color = Color.White,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -210,11 +215,11 @@ private fun CartaoEstatistica(
         border =
             BorderStroke(
                 width = 1.dp,
-                color = Color(0xFFE3E9EF),
+                color = MaterialTheme.colorScheme.outlineVariant, // Borda adaptável
             ),
         colors =
             CardDefaults.cardColors(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface, // Fundo do card adaptável
             ),
         elevation =
             CardDefaults.cardElevation(
@@ -257,7 +262,7 @@ private fun CartaoEstatistica(
                 fontSize = 12.sp,
                 lineHeight = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF344054),
+                color = MaterialTheme.colorScheme.onSurface, // Texto principal adaptável
                 textAlign = TextAlign.Center,
             )
 
@@ -267,7 +272,7 @@ private fun CartaoEstatistica(
                 text = legenda,
                 fontSize = 9.sp,
                 lineHeight = 10.sp,
-                color = Color(0xFF6C7A89),
+                color = MaterialTheme.colorScheme.onSurfaceVariant, // Texto secundário adaptável
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )

@@ -1,5 +1,6 @@
 package com.memobrain.memonow.features.cadernos
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.memobrain.memonow.data.repository.repositorio.RepositorioCaderno
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,7 +62,7 @@ class CriarCadernoViewModel : ViewModel() {
         }
     }
 
-    fun salvarCaderno() {
+    fun salvarCaderno(imagemUri: Uri?) {
         val estadoAtual = _uiState.value
 
         if (estadoAtual.nome.isBlank() || estadoAtual.isSalvando) {
@@ -79,7 +80,8 @@ class CriarCadernoViewModel : ViewModel() {
             titulo = estadoAtual.nome,
             descricao = estadoAtual.descricao,
             cor = estadoAtual.corSelecionada,
-            aoSucesso = {
+            imagemUri = imagemUri,
+            aoSucesso = { _ ->
                 _uiState.update {
                     it.copy(
                         isSalvando = false,

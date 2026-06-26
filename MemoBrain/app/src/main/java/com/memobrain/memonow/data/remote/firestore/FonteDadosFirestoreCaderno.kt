@@ -1,11 +1,19 @@
 package com.memobrain.memonow.data.remote.firestore
 
+import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.tasks.await
 
 data class CadernoFirestore(
     val id: String,
@@ -14,16 +22,19 @@ data class CadernoFirestore(
     val cor: Long,
     val revisados: Int,
     val restantes: Int,
+    val capaUrl: String = ""
 )
 
 class FonteDadosFirestoreCaderno {
     private val banco = FirebaseFirestore.getInstance()
     private val autenticacao = FirebaseAuth.getInstance()
+    private val storage = FirebaseStorage.getInstance() // Se sumir o erro do Gradle, aqui fica verde!
 
     fun criarCaderno(
         titulo: String,
         descricao: String,
         cor: Long,
+        imagemUri: Uri?,
         aoSucesso: (String) -> Unit,
         aoErro: (String) -> Unit,
     ) {
@@ -34,6 +45,32 @@ class FonteDadosFirestoreCaderno {
             return
         }
 
+        // Se o utilizador escolheu uma imagem, pegamos o caminho local dela (content://...)
+        // Caso contrário, fica uma String vazia.
+        val capaUrlLocal = imagemUri?.toString() ?: ""
+
+        // Salva os dados diretamente no Firestore.
+        // Como guardamos a URI local, o Coil vai conseguir ler a foto da galeria no teu dispositivo de testes!
+        salvarDadosNoFirestore(
+            usuarioId = usuarioId,
+            titulo = titulo,
+            descricao = descricao,
+            cor = cor,
+            capaUrl = capaUrlLocal, // Guarda o caminho da galeria aqui
+            aoSucesso = aoSucesso,
+            aoErro = aoErro
+        )
+    }
+
+    private fun salvarDadosNoFirestore(
+        usuarioId: String,
+        titulo: String,
+        descricao: String,
+        cor: Long,
+        capaUrl: String,
+        aoSucesso: (String) -> Unit,
+        aoErro: (String) -> Unit
+    ) {
         val dadosCaderno =
             hashMapOf<String, Any>(
                 "usuarioId" to usuarioId,
@@ -42,6 +79,7 @@ class FonteDadosFirestoreCaderno {
                 "cor" to cor,
                 "revisados" to 0,
                 "restantes" to 0,
+                "capaUrl" to capaUrl,
                 "criadoEm" to FieldValue.serverTimestamp(),
                 "atualizadoEm" to FieldValue.serverTimestamp(),
             )
@@ -246,5 +284,6 @@ class FonteDadosFirestoreCaderno {
             cor = documento.getLong("cor") ?: 0xFF264653L,
             revisados = documento.getLong("revisados")?.toInt() ?: 0,
             restantes = documento.getLong("restantes")?.toInt() ?: 0,
+            capaUrl = documento.getString("capaUrl").orEmpty()
         )
 }

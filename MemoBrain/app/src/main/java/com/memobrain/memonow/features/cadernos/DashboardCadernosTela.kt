@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.memobrain.memonow.R
+import androidx.compose.material3.MaterialTheme
 
 data class MetodoEstudo(
     val titulo: String,
@@ -63,6 +64,7 @@ data class AtividadeRecente(
 data class CadernoAndamento(
     val id: String = "",
     val titulo: String = "",
+    val capaUrl: String = ""
 )
 
 enum class AbaMenu {
@@ -103,7 +105,7 @@ fun DashboardCadernosTela(
                 },
             )
         },
-        containerColor = Color(0xFFF6F8FB),
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -143,7 +145,7 @@ fun DashboardCadernosTela(
                 text = "Métodos de estudo disponíveis",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A2536),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -177,7 +179,7 @@ fun DashboardCadernosTela(
                 Text(
                     text = "Nenhum caderno cadastrado ainda.",
                     fontSize = 13.sp,
-                    color = Color(0xFF8A94A6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
             } else {
@@ -210,7 +212,7 @@ fun DashboardCadernosTela(
                 Text(
                     text = "Nenhuma atividade realizada ainda.",
                     fontSize = 13.sp,
-                    color = Color(0xFF8A94A6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
             } else {
@@ -255,7 +257,7 @@ fun HeaderUsuario(nome: String) {
                 text = "Olá, $nome!",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A2536),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -263,7 +265,7 @@ fun HeaderUsuario(nome: String) {
             Text(
                 text = "Vamos revisar hoje?",
                 fontSize = 12.sp,
-                color = Color(0xFF7B8794),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -280,19 +282,20 @@ fun FilterChipMemonow(
             onClick()
         },
         shape = RoundedCornerShape(22.dp),
+
         color = if (isSelected) {
-            Color(0xFF22496E)
+            MaterialTheme.colorScheme.primary
         } else {
-            Color(0xFFF0F3F7)
+            MaterialTheme.colorScheme.surfaceVariant
         },
         shadowElevation = 0.dp,
     ) {
         Text(
             text = texto,
             color = if (isSelected) {
-                Color.White
+                MaterialTheme.colorScheme.onPrimary
             } else {
-                Color(0xFF5F6B7A)
+                MaterialTheme.colorScheme.onSurfaceVariant
             },
             fontSize = 13.sp,
             fontWeight = if (isSelected) {
@@ -316,7 +319,7 @@ fun CardMetodoEstudo(
     Card(
         modifier = modifier.height(88.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(
@@ -345,7 +348,7 @@ fun CardMetodoEstudo(
                 text = metodo.titulo,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF1A2536),
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 lineHeight = 12.sp,
                 maxLines = 2,
@@ -368,14 +371,14 @@ fun SectionHeader(
             text = titulo,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF1A2536),
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         Text(
             text = "Ver mais",
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Color(0xFF4EB6A6),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable {
                 onVerMaisClick()
             },
@@ -392,7 +395,7 @@ fun CardCadernoAndamento(
             .width(128.dp)
             .height(142.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(
@@ -414,13 +417,20 @@ fun CardCadernoAndamento(
                     .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
+                // Se houver uma capaUrl válida, carrega via Coil, senão usa o logo padrão
+                val imagemPainter = if (caderno.capaUrl.isNotBlank()) {
+                    coil.compose.rememberAsyncImagePainter(model = caderno.capaUrl)
+                } else {
+                    painterResource(id = R.drawable.ic_memobrain_logo)
+                }
+
                 Image(
-                    painter = painterResource(
-                        id = R.drawable.ic_memobrain_logo,
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.size(70.dp),
-                    contentScale = ContentScale.Fit,
+                    painter = imagemPainter,
+                    contentDescription = "Capa do caderno",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = if (caderno.capaUrl.isNotBlank()) ContentScale.Crop else ContentScale.Fit,
                 )
             }
 
@@ -430,7 +440,7 @@ fun CardCadernoAndamento(
                 text = limitarTituloCaderno(caderno.titulo),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF1A2536),
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 softWrap = false,
@@ -451,7 +461,7 @@ fun CardAtividadeRecente(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent,
+            containerColor = MaterialTheme.colorScheme.background,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp,
@@ -467,7 +477,7 @@ fun CardAtividadeRecente(
                 modifier = Modifier
                     .size(60.dp)
                     .background(
-                        color = Color(0xFFE9F6F2),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp),
                     ),
                 contentAlignment = Alignment.Center,
@@ -490,7 +500,7 @@ fun CardAtividadeRecente(
                     text = atividade.titulo,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A2536),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -500,7 +510,7 @@ fun CardAtividadeRecente(
                 Text(
                     text = atividade.subtitulo,
                     fontSize = 13.sp,
-                    color = Color(0xFF8A94A6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -509,7 +519,7 @@ fun CardAtividadeRecente(
             Text(
                 text = "⋮",
                 fontSize = 22.sp,
-                color = Color(0xFF9EA8B6),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 8.dp),
             )
         }
@@ -521,8 +531,8 @@ fun MenuInferiorMemonow(
     abaSelecionada: AbaMenu,
     onAbaClick: (AbaMenu) -> Unit = {},
 ) {
-    val azulPrincipal = Color(0xFF22496E)
-    val cinza = Color(0xFF8E98A8)
+    val azulPrincipal = MaterialTheme.colorScheme.primary
+    val cinza = MaterialTheme.colorScheme.onSurfaceVariant
 
     val bottomInset = WindowInsets.navigationBars
         .asPaddingValues()
@@ -565,7 +575,7 @@ fun MenuInferiorMemonow(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(
             topStart = 24.dp,
             topEnd = 24.dp,
@@ -575,7 +585,7 @@ fun MenuInferiorMemonow(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White),
+                .background(MaterialTheme.colorScheme.surface),
         ) {
             Row(
                 modifier = Modifier
@@ -651,7 +661,7 @@ fun MenuInferiorMemonow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(bottomInset)
-                        .background(Color.White),
+                        .background(MaterialTheme.colorScheme.surface),
                 )
             }
         }

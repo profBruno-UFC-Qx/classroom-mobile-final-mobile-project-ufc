@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun CreateFlashcardScreen(
@@ -59,7 +60,7 @@ fun CreateFlashcardScreen(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(Color(0xFF666666)),
+                .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center,
     ) {
         Card(
@@ -70,7 +71,7 @@ fun CreateFlashcardScreen(
             shape = RoundedCornerShape(28.dp),
             colors =
                 CardDefaults.cardColors(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                 ),
             elevation =
                 CardDefaults.cardElevation(
@@ -87,7 +88,7 @@ fun CreateFlashcardScreen(
                     text = "Criar Pergunta Aberta",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A2536),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -95,7 +96,7 @@ fun CreateFlashcardScreen(
                 Text(
                     text = "Organize seu conhecimento com precisão e clareza.",
                     fontSize = 14.sp,
-                    color = Color(0xFF7B8794),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 20.sp,
                 )
 
@@ -105,7 +106,7 @@ fun CreateFlashcardScreen(
                     text = "PERGUNTA",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF8A94A6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -116,7 +117,7 @@ fun CreateFlashcardScreen(
                     placeholder = {
                         Text(
                             text = "Ex.: O que é Machine Learning?",
-                            color = Color(0xFFB0B8C1),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                         )
                     },
@@ -127,14 +128,21 @@ fun CreateFlashcardScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = Color(0xFFB0B8C1),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp),
                         )
                     },
                     colors =
                         OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = Color(0xFFE2E8F0),
-                            focusedBorderColor = Color(0xFF22496E),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            cursorColor = MaterialTheme.colorScheme.primary,
                         ),
                 )
 
@@ -144,7 +152,7 @@ fun CreateFlashcardScreen(
                     text = "RESPOSTA",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF8A94A6),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -155,7 +163,7 @@ fun CreateFlashcardScreen(
                     placeholder = {
                         Text(
                             text = "Ex.: Área da IA que permite analisar dados.",
-                            color = Color(0xFFB0B8C1),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                         )
                     },
@@ -176,15 +184,22 @@ fun CreateFlashcardScreen(
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = null,
-                                tint = Color(0xFFB0B8C1),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp),
                             )
                         }
                     },
                     colors =
                         OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = Color(0xFFE2E8F0),
-                            focusedBorderColor = Color(0xFF22496E),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            cursorColor = MaterialTheme.colorScheme.primary,
                         ),
                 )
 
@@ -193,7 +208,7 @@ fun CreateFlashcardScreen(
 
                     Text(
                         text = erro,
-                        color = Color(0xFFD32F2F),
+                        color =  MaterialTheme.colorScheme.error,
                         fontSize = 13.sp,
                     )
                 }
@@ -201,7 +216,7 @@ fun CreateFlashcardScreen(
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 4.dp),
                     thickness = 1.dp,
-                    color = Color(0xFFE2E8F0),
+                    color = MaterialTheme.colorScheme.outlineVariant,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -222,13 +237,13 @@ fun CreateFlashcardScreen(
                                 .height(52.dp),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFE9ECEF),
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             ),
                         shape = RoundedCornerShape(26.dp),
                     ) {
                         Text(
                             text = "Cancelar",
-                            color = Color(0xFF495057),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -247,20 +262,20 @@ fun CreateFlashcardScreen(
                                 .height(52.dp),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF22496E),
+                                containerColor = MaterialTheme.colorScheme.primary,
                             ),
                         shape = RoundedCornerShape(26.dp),
                     ) {
                         if (state.isSaving) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 strokeWidth = 2.dp,
                             )
                         } else {
                             Text(
                                 text = "Salvar",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.Bold,
                             )
                         }

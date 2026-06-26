@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.memobrain.memonow.R
+import androidx.compose.material3.MaterialTheme
+
 
 @Composable
 fun EditArquivoScreen(
@@ -78,7 +80,7 @@ fun EditArquivoScreen(
     }
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(
             modifier =
@@ -99,7 +101,7 @@ fun EditArquivoScreen(
                     text = "Editar Arquivo",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2D3748),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 IconButton(
@@ -109,7 +111,7 @@ fun EditArquivoScreen(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Fechar",
-                        tint = Color(0xFF2D3748),
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -125,7 +127,7 @@ fun EditArquivoScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(
-                        color = Color(0xFF1E466B),
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             } else {
@@ -133,7 +135,7 @@ fun EditArquivoScreen(
                     text = "Título do Arquivo",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF2D3748),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -152,15 +154,15 @@ fun EditArquivoScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors =
                         OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFF1E466B),
-                            unfocusedBorderColor = Color(0xFFCBD5E1),
-                            focusedTextColor = Color(0xFF2D3748),
-                            unfocusedTextColor = Color(0xFF2D3748),
-                            focusedPlaceholderColor = Color(0xFFA0AEC0),
-                            unfocusedPlaceholderColor = Color(0xFFA0AEC0),
-                            cursorColor = Color(0xFF1E466B),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            cursorColor = MaterialTheme.colorScheme.primary,
                         ),
                 )
 
@@ -170,7 +172,7 @@ fun EditArquivoScreen(
                     text = "Descrição (opcional)",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF718096),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -192,15 +194,15 @@ fun EditArquivoScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors =
                         OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFF1E466B),
-                            unfocusedBorderColor = Color(0xFFCBD5E1),
-                            focusedTextColor = Color(0xFF2D3748),
-                            unfocusedTextColor = Color(0xFF2D3748),
-                            focusedPlaceholderColor = Color(0xFFA0AEC0),
-                            unfocusedPlaceholderColor = Color(0xFFA0AEC0),
-                            cursorColor = Color(0xFF1E466B),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            cursorColor = MaterialTheme.colorScheme.primary,
                         ),
                 )
 
@@ -209,7 +211,7 @@ fun EditArquivoScreen(
 
                     Text(
                         text = mensagem,
-                        color = Color(0xFFD32F2F),
+                        color = MaterialTheme.colorScheme.error,
                         fontSize = 13.sp,
                     )
                 }
@@ -217,7 +219,7 @@ fun EditArquivoScreen(
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 4.dp),
                     thickness = 1.dp,
-                    color = Color(0xFFE2E8F0),
+                    color = MaterialTheme.colorScheme.outlineVariant,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -235,13 +237,14 @@ fun EditArquivoScreen(
                                 .height(48.dp),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFE2E8F0),
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                         shape = RoundedCornerShape(24.dp),
                     ) {
                         Text(
                             text = "CANCELAR",
-                            color = Color(0xFF718096),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -255,28 +258,29 @@ fun EditArquivoScreen(
                         },
                         enabled =
                             state.titulo.isNotBlank() &&
-                                !state.isSaving &&
-                                !state.isDeleting,
+                                    !state.isSaving &&
+                                    !state.isDeleting,
                         modifier =
                             Modifier
                                 .weight(1f)
                                 .height(48.dp),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF1E466B),
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
                             ),
                         shape = RoundedCornerShape(24.dp),
                     ) {
                         if (state.isSaving) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 strokeWidth = 2.dp,
                             )
                         } else {
                             Text(
                                 text = "SALVAR",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
@@ -296,20 +300,21 @@ fun EditArquivoScreen(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFB04452),
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
                         ),
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     if (state.isDeleting) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onError,
                             strokeWidth = 2.dp,
                         )
                     } else {
                         Text(
                             text = "EXCLUIR ARQUIVO",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onError,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -359,9 +364,10 @@ private fun DialogConfirmacaoExclusao(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(28.dp),
-                    ).padding(horizontal = 24.dp, vertical = 36.dp),
+                    )
+                    .padding(horizontal = 24.dp, vertical = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
@@ -379,7 +385,7 @@ private fun DialogConfirmacaoExclusao(
                 text = titulo,
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2F3941),
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 lineHeight = 30.sp,
             )
@@ -389,7 +395,7 @@ private fun DialogConfirmacaoExclusao(
             Text(
                 text = mensagem,
                 fontSize = 13.sp,
-                color = Color(0xFF7C8792),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 lineHeight = 22.sp,
             )
@@ -402,40 +408,36 @@ private fun DialogConfirmacaoExclusao(
             ) {
                 Button(
                     onClick = onCancelar,
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .height(46.dp),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE6EDF2),
-                        ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(46.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
                     shape = RoundedCornerShape(24.dp),
                     elevation = null,
                 ) {
                     Text(
                         text = "Cancelar",
-                        color = Color(0xFF36414A),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
 
                 Button(
                     onClick = onConfirmar,
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .height(46.dp),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFB04452),
-                        ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(46.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
                     shape = RoundedCornerShape(24.dp),
                     elevation = null,
                 ) {
                     Text(
                         text = "Excluir",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onError,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }

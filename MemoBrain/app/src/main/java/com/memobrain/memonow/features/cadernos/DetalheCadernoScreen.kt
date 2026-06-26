@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.memobrain.memonow.R
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,12 +59,15 @@ fun DetalheCadernoScreen(
                         text = "Arquivos",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF2D3748),
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 colors =
                     TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFFF7FAFC),
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
             )
         },
@@ -79,7 +83,7 @@ fun DetalheCadernoScreen(
                 },
             )
         },
-        containerColor = Color(0xFFF7FAFC),
+        containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.systemBars,
     ) { innerPadding ->
         Column(
@@ -104,7 +108,7 @@ fun DetalheCadernoScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = Color(0xFF2D3748),
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
 
@@ -112,14 +116,15 @@ fun DetalheCadernoScreen(
                     text = state.nomeCaderno.uppercase(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2D3748),
+                    color =  MaterialTheme.colorScheme.onSurface,
                 )
 
                 IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Mais opções",
-                        tint = Color(0xFF2D3748),
+                        tint = MaterialTheme.colorScheme.onSurface,
+
                     )
                 }
             }
@@ -136,7 +141,7 @@ fun DetalheCadernoScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(
-                            color = Color(0xFF1E466B),
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -151,7 +156,7 @@ fun DetalheCadernoScreen(
                     ) {
                         Text(
                             text = state.mensagemErro.orEmpty(),
-                            color = Color(0xFFD32F2F),
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 14.sp,
                         )
                     }
@@ -167,7 +172,7 @@ fun DetalheCadernoScreen(
                     ) {
                         Text(
                             text = "Nenhum arquivo cadastrado neste caderno.",
-                            color = Color(0xFF718096),
+                            color =  MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                         )
                     }
@@ -203,13 +208,13 @@ fun DetalheCadernoScreen(
                         .height(48.dp),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E466B),
+                        containerColor = MaterialTheme.colorScheme.primary,
                     ),
                 shape = RoundedCornerShape(24.dp),
             ) {
                 Text(
                     text = "NOVO ARQUIVO",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -232,7 +237,7 @@ fun CardTopicoItem(
         shape = RoundedCornerShape(12.dp),
         colors =
             CardDefaults.cardColors(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
         elevation =
             CardDefaults.cardElevation(
@@ -251,7 +256,7 @@ fun CardTopicoItem(
                     Modifier
                         .size(48.dp)
                         .background(
-                            color = Color(0xFFE2E8F0),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(8.dp),
                         ),
                 contentAlignment = Alignment.Center,
@@ -275,7 +280,7 @@ fun CardTopicoItem(
                     text = topico.titulo,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF2D3748),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -285,7 +290,7 @@ fun CardTopicoItem(
                 Text(
                     text = topico.descricao.ifBlank { "Sem descrição" },
                     fontSize = 11.sp,
-                    color = Color(0xFF718096),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -295,7 +300,7 @@ fun CardTopicoItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Editar",
-                    tint = Color(0xFF9EA8B6),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -311,7 +316,7 @@ fun SelectorAbasSimulado(quantidadeMeus: Int) {
                 .fillMaxWidth()
                 .height(48.dp)
                 .background(
-                    color = Color(0xFFEDF2F7),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(24.dp),
                 ).padding(4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -322,7 +327,7 @@ fun SelectorAbasSimulado(quantidadeMeus: Int) {
                     .weight(1f)
                     .fillMaxHeight()
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(20.dp),
                     ),
             contentAlignment = Alignment.Center,
@@ -331,7 +336,7 @@ fun SelectorAbasSimulado(quantidadeMeus: Int) {
                 text = "Meus ($quantidadeMeus)",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2D3748),
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
 
@@ -345,7 +350,7 @@ fun SelectorAbasSimulado(quantidadeMeus: Int) {
             Text(
                 text = "Públicos",
                 fontSize = 13.sp,
-                color = Color(0xFFA0AEC0),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

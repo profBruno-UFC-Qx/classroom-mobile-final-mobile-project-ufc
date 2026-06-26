@@ -1,5 +1,6 @@
 package com.memobrain.memonow.data.repository.repositorio
 
+import android.net.Uri
 import com.google.firebase.firestore.ListenerRegistration
 import com.memobrain.memonow.data.remote.firestore.FonteDadosFirestoreCaderno
 import com.memobrain.memonow.features.cadernos.Caderno
@@ -19,6 +20,7 @@ class RepositorioCaderno(
         titulo: String,
         descricao: String,
         cor: Long,
+        imagemUri: Uri?,
         aoSucesso: (String) -> Unit,
         aoErro: (String) -> Unit,
     ) {
@@ -26,6 +28,7 @@ class RepositorioCaderno(
             titulo = titulo,
             descricao = descricao,
             cor = cor,
+            imagemUri = imagemUri,
             aoSucesso = aoSucesso,
             aoErro = aoErro,
         )
@@ -45,6 +48,7 @@ class RepositorioCaderno(
                             descricao = caderno.descricao,
                             revisados = caderno.revisados,
                             restantes = caderno.restantes,
+                            capaUrl = caderno.capaUrl // <--- ADICIONE ESTA LINHA PARA A FOTO CHEGAR À HOME
                         )
                     }
 

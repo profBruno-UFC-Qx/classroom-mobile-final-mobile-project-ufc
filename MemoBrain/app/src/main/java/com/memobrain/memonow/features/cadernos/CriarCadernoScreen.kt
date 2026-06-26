@@ -28,6 +28,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberAsyncImagePainter
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -46,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +66,17 @@ fun CriarCadernoScreen(
     onBackClick: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    var imagemSelecionada by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val launcherGaleria =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia()
+        ) { uri ->
+            imagemSelecionada = uri
+        }
 
     LaunchedEffect(state.isSalvoSucesso) {
         if (state.isSalvoSucesso) {
@@ -71,7 +93,7 @@ fun CriarCadernoScreen(
                         text = "Novo Caderno",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2D3748),
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 },
                 navigationIcon = {
@@ -82,17 +104,17 @@ fun CriarCadernoScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar",
-                            tint = Color(0xFF2D3748),
+                            tint = MaterialTheme.colorScheme.onBackground,
                         )
                     }
                 },
                 colors =
                     TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color(0xFFF8F9FA),
+                        containerColor = MaterialTheme.colorScheme.background,
                     ),
             )
         },
-        containerColor = Color(0xFFF8F9FA),
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(
             modifier =
@@ -107,7 +129,7 @@ fun CriarCadernoScreen(
                 text = "Nome do Caderno",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF2D3748),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             OutlinedTextField(
@@ -124,15 +146,13 @@ fun CriarCadernoScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color(0xFF1E466B),
-                        unfocusedBorderColor = Color(0xFFCBD5E1),
-                        focusedTextColor = Color(0xFF2D3748),
-                        unfocusedTextColor = Color(0xFF2D3748),
-                        focusedPlaceholderColor = Color(0xFFA0AEC0),
-                        unfocusedPlaceholderColor = Color(0xFFA0AEC0),
-                        cursorColor = Color(0xFF1E466B),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
                     ),
             )
 
@@ -140,7 +160,7 @@ fun CriarCadernoScreen(
                 text = "Descrição (opcional)",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF718096),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             )
 
             OutlinedTextField(
@@ -160,15 +180,15 @@ fun CriarCadernoScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color(0xFF1E466B),
-                        unfocusedBorderColor = Color(0xFFCBD5E1),
-                        focusedTextColor = Color(0xFF2D3748),
-                        unfocusedTextColor = Color(0xFF2D3748),
-                        focusedPlaceholderColor = Color(0xFFA0AEC0),
-                        unfocusedPlaceholderColor = Color(0xFFA0AEC0),
-                        cursorColor = Color(0xFF1E466B),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        cursorColor = MaterialTheme.colorScheme.primary,
                     ),
             )
 
@@ -176,7 +196,7 @@ fun CriarCadernoScreen(
                 text = "Imagem do Caderno (opcional)",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF2D3748),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Box(
@@ -186,52 +206,67 @@ fun CriarCadernoScreen(
                         .height(100.dp)
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFCBD5E1),
+                            color = MaterialTheme.colorScheme.outline,
                             shape = RoundedCornerShape(12.dp),
                         ).background(
-                            color = Color.White,
+                            MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(12.dp),
                         ).clickable(
                             enabled = !state.isSalvando,
                         ) {
-                            // A seleção de imagem será implementada depois.
+                            launcherGaleria.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
                         },
                 contentAlignment = Alignment.Center,
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Selecionar imagem",
-                        color = Color(0xFFA0AEC0),
-                        fontSize = 14.sp,
+                if (imagemSelecionada != null) {
+
+                    Image(
+                        painter = rememberAsyncImagePainter(imagemSelecionada),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                } else {
 
-                    Box(
-                        modifier =
-                            Modifier
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+
+                        Text(
+                            text = "Selecionar imagem",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp,
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Box(
+                            modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E466B)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Adicionar imagem",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp),
-                        )
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint =  MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
+                  }
                 }
-            }
 
             Text(
                 text = "Cor (opcional)",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF718096),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             )
 
             Row(
@@ -252,7 +287,7 @@ fun CriarCadernoScreen(
                                     width = if (selecionada) 3.dp else 0.dp,
                                     color =
                                         if (selecionada) {
-                                            Color(0xFF2D3748)
+                                            MaterialTheme.colorScheme.onBackground
                                         } else {
                                             Color.Transparent
                                         },
@@ -269,7 +304,7 @@ fun CriarCadernoScreen(
             state.mensagemErro?.let { erro ->
                 Text(
                     text = erro,
-                    color = Color(0xFFD32F2F),
+                    color =  MaterialTheme.colorScheme.error,
                     fontSize = 13.sp,
                 )
             }
@@ -277,7 +312,7 @@ fun CriarCadernoScreen(
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 4.dp),
                 thickness = 1.dp,
-                color = Color(0xFFE2E8F0),
+                color = MaterialTheme.colorScheme.outlineVariant,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -295,20 +330,20 @@ fun CriarCadernoScreen(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE2E8F0),
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         ),
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     Text(
                         text = "CANCELAR",
-                        color = Color(0xFF718096),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
                     )
                 }
 
                 Button(
                     onClick = {
-                        viewModel.salvarCaderno()
+                        viewModel.salvarCaderno(imagemUri = imagemSelecionada)
                     },
                     enabled = state.nome.isNotBlank() && !state.isSalvando,
                     modifier =
@@ -317,14 +352,14 @@ fun CriarCadernoScreen(
                             .height(48.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1E466B),
+                            containerColor = MaterialTheme.colorScheme.primary,
                         ),
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     if (state.isSalvando) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp,
                         )
 
@@ -332,13 +367,13 @@ fun CriarCadernoScreen(
 
                         Text(
                             text = "SALVANDO",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold,
                         )
                     } else {
                         Text(
                             text = "SALVAR",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold,
                         )
                     }

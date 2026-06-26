@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,7 +76,7 @@ fun RegistrarTela(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF6F8FB))
+                .background(MaterialTheme.colorScheme.background)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(
@@ -97,7 +98,7 @@ fun RegistrarTela(
                 text = "Crie sua conta",
                 fontSize = 27.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF111827),
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -105,7 +106,7 @@ fun RegistrarTela(
             Text(
                 text = "Crie e memorize de diversas formas!",
                 fontSize = 16.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(26.dp))
@@ -113,7 +114,7 @@ fun RegistrarTela(
             Text(
                 text = "Nome completo",
                 fontSize = 15.sp,
-                color = Color(0xFF475569),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp),
             )
 
@@ -132,7 +133,7 @@ fun RegistrarTela(
             Text(
                 text = "E-mail",
                 fontSize = 15.sp,
-                color = Color(0xFF475569),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp),
             )
 
@@ -152,7 +153,7 @@ fun RegistrarTela(
             Text(
                 text = "Número",
                 fontSize = 15.sp,
-                color = Color(0xFF475569),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp),
             )
 
@@ -169,13 +170,13 @@ fun RegistrarTela(
                         .fillMaxWidth()
                         .height(42.dp)
                         .background(
-                            Color.White,
+                            MaterialTheme.colorScheme.surface,
                             RoundedCornerShape(12.dp),
                         ),
                 textStyle =
                     TextStyle(
                         fontSize = 16.sp,
-                        color = Color(0xFF111827),
+                        color = MaterialTheme.colorScheme.onSurface,
                     ),
                 keyboardOptions =
                     KeyboardOptions(
@@ -191,9 +192,9 @@ fun RegistrarTela(
                                     width = 1.dp,
                                     color =
                                         if (erroTelefone != null) {
-                                            Color(0xFFD32F2F)
+                                            MaterialTheme.colorScheme.error
                                         } else {
-                                            Color(0xFFD1D5DB)
+                                            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                                         },
                                     shape = RoundedCornerShape(12.dp),
                                 ).padding(horizontal = 16.dp),
@@ -203,7 +204,7 @@ fun RegistrarTela(
                             text = "+55",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF111827),
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
@@ -213,7 +214,7 @@ fun RegistrarTela(
                                 Modifier
                                     .fillMaxHeight(0.45f)
                                     .width(1.dp)
-                                    .background(Color(0xFFE5E7EB)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
@@ -224,7 +225,7 @@ fun RegistrarTela(
                             if (telefone.isEmpty()) {
                                 Text(
                                     text = "Digite seu telefone",
-                                    color = Color(0xFFA9AFB7),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     fontSize = 14.sp,
                                 )
                             }
@@ -238,7 +239,7 @@ fun RegistrarTela(
             erroTelefone?.let { erro ->
                 Text(
                     text = erro,
-                    color = Color(0xFFD32F2F),
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp),
                 )
@@ -249,7 +250,7 @@ fun RegistrarTela(
             Text(
                 text = "Senha",
                 fontSize = 15.sp,
-                color = Color(0xFF475569),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp),
             )
 
@@ -267,13 +268,13 @@ fun RegistrarTela(
                             .weight(1f)
                             .height(42.dp)
                             .background(
-                                Color.White,
+                                MaterialTheme.colorScheme.surface,
                                 RoundedCornerShape(12.dp),
                             ),
                     textStyle =
                         TextStyle(
                             fontSize = 16.sp,
-                            color = Color(0xFF111827),
+                            color = MaterialTheme.colorScheme.onSurface,
                         ),
                     singleLine = true,
                     visualTransformation =
@@ -291,9 +292,9 @@ fun RegistrarTela(
                                         width = 1.dp,
                                         color =
                                             if (erroSenha != null) {
-                                                Color(0xFFD32F2F)
+                                                MaterialTheme.colorScheme.error
                                             } else {
-                                                Color(0xFFD1D5DB)
+                                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                                             },
                                         shape = RoundedCornerShape(12.dp),
                                     ).padding(horizontal = 16.dp),
@@ -305,7 +306,7 @@ fun RegistrarTela(
                                 if (senha.isEmpty()) {
                                     Text(
                                         text = "Digite sua senha",
-                                        color = Color(0xFFA9AFB7),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         fontSize = 14.sp,
                                     )
                                 }
@@ -334,7 +335,7 @@ fun RegistrarTela(
                         } else {
                             "Mostrar senha"
                         },
-                    tint = Color(0xFF111827),
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier =
                         Modifier
                             .size(22.dp)
@@ -347,7 +348,7 @@ fun RegistrarTela(
             erroSenha?.let { erro ->
                 Text(
                     text = erro,
-                    color = Color(0xFFD32F2F),
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp),
                 )
@@ -408,10 +409,10 @@ fun RegistrarTela(
                 shape = RoundedCornerShape(12.dp),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1B4363),
-                        contentColor = Color.White,
-                        disabledContainerColor = Color(0xFF3A6F98),
-                        disabledContentColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
             ) {
                 Text(
@@ -431,7 +432,7 @@ fun RegistrarTela(
 
                 Text(
                     text = mensagemCadastro,
-                    color = Color(0xFFD32F2F),
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 13.sp,
                 )
             }
@@ -447,12 +448,12 @@ fun RegistrarTela(
                         Modifier
                             .weight(1f)
                             .height(1.dp)
-                            .background(Color(0xFFE5E7EB)),
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                 )
 
                 Text(
                     text = "ou continue com",
-                    color = Color(0xFFB0B7C3),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(horizontal = 12.dp),
                 )
@@ -462,7 +463,7 @@ fun RegistrarTela(
                         Modifier
                             .weight(1f)
                             .height(1.dp)
-                            .background(Color(0xFFE5E7EB)),
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                 )
             }
 
@@ -497,13 +498,13 @@ fun RegistrarTela(
             ) {
                 Text(
                     text = "Já tem uma conta? ",
-                    color = Color(0xFF9CA3AF),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                 )
 
                 Text(
                     text = "Entrar",
-                    color = Color(0xFF1B4363),
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier =
@@ -534,13 +535,13 @@ private fun CampoTextoCadastro(
                 .fillMaxWidth()
                 .height(42.dp)
                 .background(
-                    Color.White,
+                    MaterialTheme.colorScheme.surface,
                     RoundedCornerShape(12.dp),
                 ),
         textStyle =
             TextStyle(
                 fontSize = 15.sp,
-                color = Color(0xFF111827),
+                color = MaterialTheme.colorScheme.onSurface,
             ),
         keyboardOptions =
             KeyboardOptions(
@@ -556,9 +557,9 @@ private fun CampoTextoCadastro(
                             width = 1.dp,
                             color =
                                 if (erro != null) {
-                                    Color(0xFFD32F2F)
+                                    MaterialTheme.colorScheme.error
                                 } else {
-                                    Color(0xFFD1D5DB)
+                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                                 },
                             shape = RoundedCornerShape(12.dp),
                         ).padding(horizontal = 16.dp),
@@ -570,7 +571,7 @@ private fun CampoTextoCadastro(
                     if (valor.isEmpty()) {
                         Text(
                             text = placeholder,
-                            color = Color(0xFFA9AFB7),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             fontSize = 14.sp,
                         )
                     }
@@ -584,7 +585,7 @@ private fun CampoTextoCadastro(
     erro?.let {
         Text(
             text = it,
-            color = Color(0xFFD32F2F),
+            color = MaterialTheme.colorScheme.error,
             fontSize = 12.sp,
             modifier = Modifier.padding(top = 4.dp),
         )
@@ -601,7 +602,7 @@ fun BotaoSocialCadastro(
             Modifier
                 .width(96.dp)
                 .height(46.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 6.dp,
     ) {

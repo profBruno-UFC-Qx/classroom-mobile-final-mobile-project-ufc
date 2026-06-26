@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun CreateMultipleChoiceScreen(
@@ -63,15 +64,14 @@ fun CreateMultipleChoiceScreen(
         }
     }
 
-    val corFoco = Color(0xFF2A9D8F)
-    val corBorda = Color(0xFFCBD5E1)
+    val corFoco = MaterialTheme.colorScheme.primary
+    val corBorda = MaterialTheme.colorScheme.outline
 
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(Color(0xFF5A677D))
-                .statusBarsPadding()
+                .background(MaterialTheme.colorScheme.background)                .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center,
@@ -84,8 +84,7 @@ fun CreateMultipleChoiceScreen(
             shape = RoundedCornerShape(18.dp),
             colors =
                 CardDefaults.cardColors(
-                    containerColor = Color.White,
-                ),
+                    containerColor = MaterialTheme.colorScheme.surface                ),
         ) {
             Column(
                 modifier =
@@ -105,8 +104,7 @@ fun CreateMultipleChoiceScreen(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Fechar",
-                            tint = Color(0xFF1F2937),
-                        )
+                            tint = MaterialTheme.colorScheme.onSurface                        )
                     }
                 }
 
@@ -114,16 +112,14 @@ fun CreateMultipleChoiceScreen(
                     text = "Criar Múltipla Escolha",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF444444),
-                )
+                    color = MaterialTheme.colorScheme.onSurface                )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = "Cadastre a pergunta e marque a alternativa correta.",
                     fontSize = 14.sp,
-                    color = Color(0xFF7B7B7B),
-                )
+                    color = MaterialTheme.colorScheme.onSurfaceVariant                )
 
                 Spacer(modifier = Modifier.height(22.dp))
 
@@ -131,8 +127,7 @@ fun CreateMultipleChoiceScreen(
                     text = "PERGUNTA",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF8A8A8A),
-                )
+                    color = MaterialTheme.colorScheme.onSurfaceVariant                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -150,8 +145,14 @@ fun CreateMultipleChoiceScreen(
                     shape = RoundedCornerShape(14.dp),
                     colors =
                         OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                             focusedBorderColor = corFoco,
                             unfocusedBorderColor = corBorda,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             cursorColor = corFoco,
                         ),
                 )
@@ -162,8 +163,7 @@ fun CreateMultipleChoiceScreen(
                     text = "ALTERNATIVAS (Marque a correta)",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF8A8A8A),
-                )
+                    color = MaterialTheme.colorScheme.onSurfaceVariant                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -181,8 +181,7 @@ fun CreateMultipleChoiceScreen(
                             colors =
                                 RadioButtonDefaults.colors(
                                     selectedColor = corFoco,
-                                    unselectedColor = Color(0xFF667085),
-                                ),
+                                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant                                ),
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -203,8 +202,14 @@ fun CreateMultipleChoiceScreen(
                             shape = RoundedCornerShape(14.dp),
                             colors =
                                 OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                                     focusedBorderColor = corFoco,
                                     unfocusedBorderColor = corBorda,
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     cursorColor = corFoco,
                                 ),
                         )
@@ -219,8 +224,7 @@ fun CreateMultipleChoiceScreen(
                                 Icon(
                                     imageVector = Icons.Default.Delete,
                                     contentDescription = "Remover alternativa",
-                                    tint = Color(0xFF8A8A8A),
-                                )
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant                                )
                             }
                         }
                     }
@@ -254,7 +258,7 @@ fun CreateMultipleChoiceScreen(
 
                     Text(
                         text = erro,
-                        color = Color(0xFFD32F2F),
+                        color = MaterialTheme.colorScheme.error,
                         fontSize = 13.sp,
                     )
                 }
@@ -262,7 +266,7 @@ fun CreateMultipleChoiceScreen(
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 20.dp),
                     thickness = 1.dp,
-                    color = Color(0xFFE2E8F0),
+                    color = MaterialTheme.colorScheme.outlineVariant,
                 )
 
                 Row(
@@ -284,13 +288,13 @@ fun CreateMultipleChoiceScreen(
                                 .height(48.dp),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFDCE3EA),
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             ),
                         shape = RoundedCornerShape(24.dp),
                     ) {
                         Text(
                             text = "Cancelar",
-                            color = Color(0xFF3E4C59),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -315,13 +319,13 @@ fun CreateMultipleChoiceScreen(
                         if (state.isSalvando) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 strokeWidth = 2.dp,
                             )
                         } else {
                             Text(
                                 text = "Salvar",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
